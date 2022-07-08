@@ -1,5 +1,5 @@
-import { ILocatedChar } from "./ICharWithPosition.ts";
-import { SourceLocation } from "./ILocation.ts";
+import { ILocatedChar } from "./ILocatedChar.ts";
+import { LocatedChar } from "./LocatedChar.ts";
 
 export function withPosition(
   sourceFile: string,
@@ -13,11 +13,11 @@ export function withPosition(
       if (entry.done) return entry;
       const character = entry.value;
       const resEntry: IteratorResult<ILocatedChar> = {
-        value: Object.assign(
-          new SourceLocation(sourceFile, nextCharLine, nextCharColumn),
-          {
-            char: character,
-          },
+        value: new LocatedChar(
+          sourceFile,
+          nextCharLine,
+          nextCharColumn,
+          character,
         ),
         done: false,
       };

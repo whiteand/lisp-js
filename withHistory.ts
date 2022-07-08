@@ -49,6 +49,7 @@ export function withHistory<T>(
       if (index >= memory.length) {
         index = 0;
         memory = [];
+        return;
       }
       memory = memory.slice(index);
       index = 0;

@@ -1,7 +1,9 @@
-import { ILocatedChar } from "../ICharWithPosition.ts";
-import { ILocation } from "../ILocation.ts";
+import { ILocatedChar } from "../ILocatedChar.ts";
 import { IteratorWithHistory } from "../withHistory.ts";
+import { ILexem } from "./ILexem.ts";
 import { LexicalError } from "./LexicalError.ts";
+import { makeLexem } from "./makeLexem.ts";
+import { parseNumber } from "./parseNumber.ts";
 import {
   isDigit,
   isIdCharacter,
@@ -9,68 +11,7 @@ import {
   isSpace,
 } from "./utils.ts";
 
-type TLexem = "(" | ")" | "+" | "*" | " " | number | bigint | {
-  type: "identifier";
-  value: string;
-};
-
-interface ILexem {
-  lexem: TLexem;
-  start: ILocation;
-  end: ILocation;
-}
-
 const INITIAL = 1;
-
-function makeLexem(lexem: TLexem, start: ILocation, end: ILocation): ILexem {
-  return {
-    lexem,
-    start: {
-      column: start.column,
-      line: start.line,
-      source: start.source,
-    },
-    end: {
-      column: end.column,
-      line: end.line,
-      source: end.source,
-    },
-  };
-}
-
-function toNumericLexem(str: string, start: ILocatedChar, end: ILocatedChar) {
-  if (str.includes(".")) return makeLexem(Number.parseFloat(str), start, end);
-  if (str.length >= "2147483648".length) {
-    return makeLexem(BigInt(str), start, end);
-  }
-  return makeLexem(Number.parseInt(str, 10), start, end);
-}
-
-function* parseNumber(
-  input: IteratorWithHistory<ILocatedChar>,
-  startLocatedChar: ILocatedChar,
-) {
-  let str = startLocatedChar.char;
-  let end = startLocatedChar;
-  let hasDot = false;
-  while (true) {
-    const { value, done } = input.next();
-    if (done) {
-      return;
-    }
-    if (isDigit(value.char)) {
-      str += value.char;
-      end = value;
-    } else if (value.char === "." && !hasDot) {
-      hasDot = true;
-      str += value.char;
-    } else {
-      input.back();
-      break;
-    }
-  }
-  yield toNumericLexem(str, startLocatedChar, end);
-}
 
 export function* getLexems(
   input: IteratorWithHistory<ILocatedChar>,
@@ -86,7 +27,6 @@ export function* getLexems(
     if (state === INITIAL) {
       input.forgetAllPrevious();
       if (isSpace(char)) {
-
         while (true) {
           const nextEntry = input.next();
           if (nextEntry.done) {
@@ -118,7 +58,8 @@ export function* getLexems(
         continue;
       }
       if (isDigit(char)) {
-        yield* parseNumber(input, locatedChar);
+        const numberLexem = parseNumber(input, locatedChar);
+        yield numberLexem;
         continue nextChar;
       }
       if (isIdStartCharacter(char)) {
