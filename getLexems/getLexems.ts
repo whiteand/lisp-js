@@ -84,8 +84,8 @@ export function* getLexems(
     const char = locatedChar.char;
 
     if (state === INITIAL) {
+      input.forgetAllPrevious();
       if (isSpace(char)) {
-        input.forgetAllPrevious();
 
         while (true) {
           const nextEntry = input.next();
@@ -119,7 +119,6 @@ export function* getLexems(
       }
       if (isDigit(char)) {
         yield* parseNumber(input, locatedChar);
-        input.forgetAllPrevious();
         continue nextChar;
       }
       if (isIdStartCharacter(char)) {
@@ -133,7 +132,6 @@ export function* getLexems(
               locatedChar,
               end,
             );
-            input.forgetAllPrevious();
             break nextChar;
           }
           if (!isIdCharacter(nextEntry.value.char)) {

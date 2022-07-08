@@ -2,7 +2,7 @@
 export interface IteratorWithHistory<T> {
   next(): IteratorResult<T, undefined>;
   back(): IteratorResult<T, undefined>;
-  forgetAllPrevious(): void
+  forgetAllPrevious(): void;
 }
 
 const DONE_ENTRY: IteratorResult<any, undefined> = {
@@ -45,8 +45,13 @@ export function withHistory<T>(
       return DONE_ENTRY;
     },
     forgetAllPrevious() {
-      index = 0
-      memory = []
-    }
+      if (memory.length <= 0) return;
+      if (index >= memory.length) {
+        index = 0;
+        memory = [];
+      }
+      memory = memory.slice(index);
+      index = 0;
+    },
   };
 }
