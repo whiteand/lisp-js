@@ -1,7 +1,8 @@
 import { ILocation } from "./ILocation.ts";
 import { LocatedChar } from "./LocatedChar.ts";
+import { ISourceCharIterator } from './ISourceCharIterator.ts'
 
-export class SourceCharIterator implements ILocation {
+export class SourceCharIterator implements ILocation, ISourceCharIterator {
   private text: string;
   private ptr: number;
   private _line: number;
@@ -39,14 +40,6 @@ export class SourceCharIterator implements ILocation {
       this._column++;
     }
   }
-
-  // abcde\nabc
-  //        ^
-  // abcde\nabc
-  //       ^
-  // abcde\nabc
-  //     ^ ^
-  //
 
   _movePointerBack() {
     if (this.ptr <= 0) return;
