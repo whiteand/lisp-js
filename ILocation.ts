@@ -1,5 +1,5 @@
 export interface ILocation {
-  line: number;
-  source: string;
-  column: number;
+  readonly line: number;
+  readonly source: string;
+  readonly column: number;
 }

@@ -8,6 +8,6 @@ export class LocatedChar extends SourceLocation implements ILocatedChar {
     this.char = char;
   }
   toString() {
-    return `${this.char}@${super.toString()}`;
+    return `${super.toString()} :: "${this.char}"`;
   }
 }

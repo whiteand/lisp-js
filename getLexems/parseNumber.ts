@@ -1,5 +1,5 @@
 import { ILocatedChar } from "../ILocatedChar.ts";
-import { IteratorWithHistory } from "../withHistory.ts";
+import { SourceCharIterator } from "../SourceCharIterator.ts";
 import { ILexem } from "./ILexem.ts";
 import { makeLexem } from "./makeLexem.ts";
 import { isDigit } from "./utils.ts";
@@ -18,7 +18,7 @@ function toNumericLexem(
   return makeLexem(Number.parseInt(str, 10), start, end);
 }
 export function parseNumber(
-  input: IteratorWithHistory<ILocatedChar>,
+  input: SourceCharIterator,
   startLocatedChar: ILocatedChar,
 ): ILexem {
   let str = startLocatedChar.char;

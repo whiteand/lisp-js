@@ -1,5 +1,4 @@
-import { ILocatedChar } from "../ILocatedChar.ts";
-import { IteratorWithHistory } from "../withHistory.ts";
+import { SourceCharIterator } from "../SourceCharIterator.ts";
 import { ILexem } from "./ILexem.ts";
 import { LexicalError } from "./LexicalError.ts";
 import { makeLexem } from "./makeLexem.ts";
@@ -14,7 +13,7 @@ import {
 const INITIAL = 1;
 
 export function* getLexems(
-  input: IteratorWithHistory<ILocatedChar>,
+  input: SourceCharIterator,
 ): Generator<ILexem, void, unknown> {
   const state = INITIAL;
   nextChar:
@@ -25,7 +24,6 @@ export function* getLexems(
     const char = locatedChar.char;
 
     if (state === INITIAL) {
-      input.forgetAllPrevious();
       if (isSpace(char)) {
         while (true) {
           const nextEntry = input.next();

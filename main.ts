@@ -1,10 +1,17 @@
 import { getFileLocatedChars } from "./getFileLocatedChars.ts";
 import { getLexems } from "./getLexems/getLexems.ts";
 import { LexicalError } from "./getLexems/LexicalError.ts";
+import { SourceCharIterator } from "./SourceCharIterator.ts";
 
 const entryPointFilePath = Deno.args[0];
 
-const sourceIterator = await getFileLocatedChars(entryPointFilePath);
+const entryPointFileContent = await Deno.readTextFile(entryPointFilePath);
+
+const sourceIterator = new SourceCharIterator(
+  entryPointFilePath,
+  entryPointFileContent,
+  0,
+);
 
 const lexemsIterator = getLexems(sourceIterator);
 
