@@ -1,1 +1,1 @@
-npx nodemon --ext .ts,.ljs --exec "deno run --allow-read main.ts example.ljs"
+npx nodemon --ext .ts,.ljs --exec "deno run --unstable --allow-net --allow-read main.ts example.ljs"

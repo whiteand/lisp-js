@@ -3,13 +3,12 @@ import { LispExpression } from "../ast.ts";
 import { ILocatedLexem } from "../ILocatedLexem.ts";
 import { renderLexem } from "../renderLexem.ts";
 import { TLexem } from "../TLexem.ts";
-import { createBackableIterator } from "./createBackableIterator.ts";
+import { createBackableIterator } from "../createBackableIterator.ts";
 import { TParseStackItem } from "./TParseStackItem.ts";
 import { LispSyntaxError } from "./LispSyntaxError.ts";
 import { logSyntaxAnalyzerState } from "./logSyntaxAnalyzerState.ts";
 import { TParseTask } from "./TParseTask.ts";
 import { makeTask } from "./makeTask.ts";
-import { colors } from "../deps.ts";
 
 export function* parseExpressions(
   locatedLexemsIterator: Iterator<ILocatedLexem>,

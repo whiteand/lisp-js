@@ -1,5 +1,5 @@
-import { assert } from "../assert.ts";
-import { IBackableIterator } from "../IBackableIterator.ts";
+import { assert } from "./assert.ts";
+import { IBackableIterator } from "./IBackableIterator.ts";
 
 export interface IHistoryIterator<T> extends IBackableIterator<T> {
   getEntries(): IteratorYieldResult<T>[];

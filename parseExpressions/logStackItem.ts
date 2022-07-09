@@ -20,6 +20,8 @@ function renderColoredStackItem(stackItem: TParseStackItem): string {
       })
     }`;
   }
+
+  // deno-lint-ignore no-explicit-any
   throw new Error("Not handled stack type: " + (stackItem as any).stackType);
 }
 

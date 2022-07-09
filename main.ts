@@ -1,22 +1,38 @@
+import { compile } from "./compile/mod.ts";
+import { colors } from "./deps.ts";
 import { getLexems } from "./getLexems/getLexems.ts";
+import { getLocatedCharsIterator } from "./getLocatedCharsIterator.ts";
 import { parseArguments } from "./parseArguments.ts";
 import { parseExpressions } from "./parseExpressions/parseExpressions.ts";
-import { renderColoredExpression } from "./renderColoredExpression.ts";
-import { SourceCharIterator } from "./SourceCharIterator.ts";
+import { renderNode } from "./js-ast/renderNode.ts";
+import { LexicalError } from "./getLexems/LexicalError.ts";
+import { LispSyntaxError } from "./parseExpressions/LispSyntaxError.ts";
 
 const { entryPointFilePath } = await parseArguments();
 
-const entryPointFileContent = await Deno.readTextFile(entryPointFilePath);
+const character$ = await getLocatedCharsIterator(entryPointFilePath);
 
-const character$ = new SourceCharIterator(
-  entryPointFilePath,
-  entryPointFileContent,
-  0,
-);
 const lexem$ = getLexems(character$);
 
 const expression$ = parseExpressions(lexem$);
 
-for (const expression of expression$) {
-  console.log(renderColoredExpression(expression));
+const bundleFile$ = compile(expression$);
+
+const consoleColumns = Deno.consoleSize(Deno.stdout.rid).columns;
+try {
+  for (const file of bundleFile$) {
+    console.log();
+    console.log(colors.green("// " + ("-".repeat(consoleColumns - 3))));
+    console.log(colors.green(`/** file: ${file.relativePath} */`));
+    console.log(await renderNode(file.ast));
+  }
+} catch (error) {
+  if (error instanceof LexicalError) {
+    error.log()
+  } else if (error instanceof LispSyntaxError) {
+    error.log()
+  } else {
+    console.error(error.message)
+    console.error(error.stack)
+  }
 }
