@@ -1,5 +1,5 @@
-import { LispExpression } from "../ast.ts";
-import { colors } from "../deps.ts";
+import { LispExpression } from "./ast.ts";
+import { colors } from "./deps.ts";
 
 export function renderColoredExpression(expr: LispExpression): string {
   if (expr.nodeType === "Number") {

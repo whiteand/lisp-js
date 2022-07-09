@@ -10,7 +10,7 @@ export function renderLexem(lexem: TLexem): string {
   if (typeof lexem === "bigint") {
     return lexem.toString();
   }
-  if (lexem.type === "identifier") {
+  if (lexem.type === "symbol") {
     return lexem.value;
   }
   return JSON.stringify(lexem);

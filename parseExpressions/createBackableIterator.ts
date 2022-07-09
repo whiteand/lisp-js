@@ -5,6 +5,7 @@ export interface IHistoryIterator<T> extends IBackableIterator<T> {
   getEntries(): IteratorYieldResult<T>[];
   getNextEntryIndex(): number;
   getLastValue(): T;
+  peek(): IteratorResult<T>;
 }
 
 export function createBackableIterator<T>(
@@ -24,8 +25,13 @@ export function createBackableIterator<T>(
         return item;
       }
       entries.push(item);
-      nextEntryIndex++;
+      nextEntryIndex = entries.length;
       return item;
+    },
+    peek() {
+      const res = this.next();
+      this.back();
+      return res;
     },
     back() {
       assert(nextEntryIndex > 0, "cannot go back. Beginning encountered");

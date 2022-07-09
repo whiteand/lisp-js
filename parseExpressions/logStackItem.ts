@@ -1,5 +1,5 @@
 import { colors } from "../deps.ts";
-import { renderColoredExpression } from "./renderColoredExpression.ts";
+import { renderColoredExpression } from "../renderColoredExpression.ts";
 import { TParseStackItem } from "./TParseStackItem.ts";
 
 function renderColoredStackItem(stackItem: TParseStackItem): string {
@@ -13,6 +13,10 @@ function renderColoredStackItem(stackItem: TParseStackItem): string {
       renderColoredExpression({
         nodeType: "Vector",
         elements: stackItem.expressionList,
+        start: stackItem.start,
+        end: stackItem.expressionList.length > 0
+          ? stackItem.expressionList.at(-1)!.end
+          : stackItem.start,
       })
     }`;
   }

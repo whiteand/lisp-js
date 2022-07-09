@@ -1,5 +1,5 @@
 import { colors } from "../deps.ts";
-import { renderLocationRange } from "../renderLocationRange.ts";
+import { renderLocation } from "../renderLocation.ts";
 import { TParseTask } from "./TParseTask.ts";
 
 const ONLY_TYPE_TASK_TYPES = [
@@ -9,8 +9,8 @@ const ONLY_TYPE_TASK_TYPES = [
   "parse_function_params",
   "create_function_call_expression",
   "parse_expressions_list",
-  "parse_close_parens",
   "append_to_expression_list",
+  'parse_close_parens_and_push_location'
 ] as const;
 
 const ONLY_TYPE_TASK_SET = new Set<string>(ONLY_TYPE_TASK_TYPES);
@@ -25,9 +25,7 @@ export function renderColoredTask(task: TParseTask): string {
     return colors.yellow(task.type);
   }
   if (task.type === "push_expression_list_array") {
-    return `${colors.yellow(task.type)}: ${
-      renderLocationRange(task.start, task.end)
-    }`;
+    return `${colors.yellow(task.type)}: ${renderLocation(task.start)}`;
   }
   throw new Error("not handled task: " + JSON.stringify(task));
 }

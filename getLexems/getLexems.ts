@@ -48,14 +48,6 @@ export function* getLexems(
         yield makeLexem(")", locatedChar, locatedChar);
         continue;
       }
-      if (char === "+") {
-        yield makeLexem("+", locatedChar, locatedChar);
-        continue;
-      }
-      if (char === "*") {
-        yield makeLexem("*", locatedChar, locatedChar);
-        continue;
-      }
       if (isDigit(char)) {
         const numberLexem = parseNumber(input, locatedChar);
         yield numberLexem;
@@ -68,7 +60,7 @@ export function* getLexems(
           const nextEntry = input.next();
           if (nextEntry.done) {
             yield makeLexem(
-              { type: "identifier", value: id },
+              { type: "symbol", value: id },
               locatedChar,
               end,
             );
@@ -77,7 +69,7 @@ export function* getLexems(
           if (!isIdCharacter(nextEntry.value.char)) {
             input.back();
             yield makeLexem(
-              { type: "identifier", value: id },
+              { type: "symbol", value: id },
               locatedChar,
               end,
             );

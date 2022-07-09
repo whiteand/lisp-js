@@ -1,8 +1,6 @@
-import { ILocation } from "./ILocation.ts";
+import { ILocationRange } from "./ILocationRange.ts";
 import { TLexem } from "./TLexem.ts";
 
-export interface ILocatedLexem {
+export interface ILocatedLexem extends ILocationRange {
   lexem: TLexem;
-  start: ILocation;
-  end: ILocation;
 }

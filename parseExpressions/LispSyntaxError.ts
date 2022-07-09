@@ -2,10 +2,11 @@ import { ILocation } from "../ILocation.ts";
 import { renderLocationRange } from "../renderLocationRange.ts";
 import { colors } from "../deps.ts";
 import { ILocatedLexem } from "../ILocatedLexem.ts";
+import { ILocationRange } from "../ILocationRange.ts";
 
-export class LispSyntaxError extends Error {
-  private start: ILocation;
-  private end: ILocation;
+export class LispSyntaxError extends Error implements ILocationRange {
+  public start: ILocation;
+  public end: ILocation;
   private innerMessage: string;
   constructor(
     innerMessage: string,

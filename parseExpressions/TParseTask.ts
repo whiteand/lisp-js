@@ -5,6 +5,9 @@ export type TParseTask =
     type: "parse_expression";
   }
   | {
+    type: "parse_program";
+  }
+  | {
     type: "yield_expression";
   }
   | {
@@ -17,9 +20,9 @@ export type TParseTask =
     type: "create_function_call_expression";
   }
   | { type: "parse_expressions_list" }
-  | { type: "push_expression_list_array"; start: ILocation; end: ILocation }
+  | { type: "push_expression_list_array"; start: ILocation }
   | {
-    type: "parse_close_parens";
+    type: "parse_close_parens_and_push_location";
   }
   | {
     type: "append_to_expression_list";

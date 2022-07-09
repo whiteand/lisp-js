@@ -43,7 +43,7 @@ function renderLexems(lexems: TLexem[]) {
       lastLexem = lexem;
       continue;
     }
-    if (lastLexem === "(") {
+    if (lastLexem === "(" || lastLexem === ' ') {
       res += renderLexem(lexem);
       lastLexem = lexem;
       continue;
