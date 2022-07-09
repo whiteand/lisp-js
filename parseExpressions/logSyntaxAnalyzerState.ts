@@ -5,7 +5,8 @@ import { renderLexem } from "../renderLexem.ts";
 import { logStackItem } from "./logStackItem.ts";
 import { TParseStackItem } from "./TParseStackItem.ts";
 import { TParseTask } from "./TParseTask.ts";
-import { renderColoredTask } from './renderColoredTask.ts'
+import { renderColoredTask } from "./renderColoredTask.ts";
+import { TLexem } from "../TLexem.ts";
 
 export function logSyntaxAnalyzerState(
   stack: TParseStackItem[],
@@ -25,13 +26,31 @@ export function logSyntaxAnalyzerState(
   console.error(colors.blue("tasks"));
   while (notFinishedTasks.length > 0) {
     const task = notFinishedTasks.pop();
-    assert(task, 'impossible state')
+    assert(task, "impossible state");
     console.log(renderColoredTask(task));
   }
-  console.log(colors.blue("code that was read"));
-  const res: string[] = [];
-  for (const entry of readEntries) {
-    res.push(renderLexem(entry.value.lexem));
+  console.log(colors.blue("code that was read:"));
+  const lexems = readEntries.map((e) => e.value.lexem);
+  console.log(renderLexems(lexems));
+}
+
+function renderLexems(lexems: TLexem[]) {
+  let res = "";
+  let lastLexem = null;
+  for (const lexem of lexems) {
+    if (!lastLexem) {
+      res += renderLexem(lexem);
+      lastLexem = lexem;
+      continue;
+    }
+    if (lastLexem === "(") {
+      res += renderLexem(lexem);
+      lastLexem = lexem;
+      continue;
+    }
+    res += " ";
+    res += renderLexem(lexem);
+    lastLexem = lexem;
   }
-  console.log(res.join(" "));
+  return res;
 }
