@@ -1,5 +1,6 @@
-import { ISourceCharIterator } from "../ISourceCharIterator.ts";
-import { ILexem } from "./ILexem.ts";
+import { IBackableIterator } from "../IBackableIterator.ts";
+import { ILocatedLexem } from "../ILocatedLexem.ts";
+import { ILocatedChar } from "../ILocatedChar.ts";
 import { LexicalError } from "./LexicalError.ts";
 import { makeLexem } from "./makeLexem.ts";
 import { parseNumber } from "./parseNumber.ts";
@@ -7,14 +8,14 @@ import {
   isDigit,
   isIdCharacter,
   isIdStartCharacter,
-  isSpace
+  isSpace,
 } from "./utils.ts";
 
 const INITIAL = 1;
 
 export function* getLexems(
-  input: ISourceCharIterator,
-): Generator<ILexem, void, unknown> {
+  input: IBackableIterator<ILocatedChar>,
+): Generator<ILocatedLexem, void, unknown> {
   const state = INITIAL;
   nextChar:
   while (true) {

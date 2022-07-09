@@ -1,6 +1,6 @@
+import { IBackableIterator } from "../IBackableIterator.ts";
+import { ILocatedLexem } from "../ILocatedLexem.ts";
 import { ILocatedChar } from "../ILocatedChar.ts";
-import { ISourceCharIterator } from "../ISourceCharIterator.ts";
-import { ILexem } from "./ILexem.ts";
 import { makeLexem } from "./makeLexem.ts";
 import { isDigit } from "./utils.ts";
 
@@ -8,7 +8,7 @@ function toNumericLexem(
   str: string,
   start: ILocatedChar,
   end: ILocatedChar,
-): ILexem {
+): ILocatedLexem {
   if (str.includes(".")) {
     return makeLexem(Number.parseFloat(str), start, end);
   }
@@ -18,9 +18,9 @@ function toNumericLexem(
   return makeLexem(Number.parseInt(str, 10), start, end);
 }
 export function parseNumber(
-  input: ISourceCharIterator,
+  input: IBackableIterator<ILocatedChar>,
   startLocatedChar: ILocatedChar,
-): ILexem {
+): ILocatedLexem {
   let str = startLocatedChar.char;
   let end = startLocatedChar;
   let hasDot = false;

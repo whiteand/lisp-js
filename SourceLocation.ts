@@ -1,4 +1,5 @@
 import { ILocation } from "./ILocation.ts";
+import { renderLocation } from "./renderLocation.ts";
 
 export class SourceLocation implements ILocation {
   public line: number;
@@ -11,6 +12,6 @@ export class SourceLocation implements ILocation {
   }
 
   toString() {
-    return `${this.source}:${this.line}:${this.column}`;
+    return renderLocation(this);
   }
 }

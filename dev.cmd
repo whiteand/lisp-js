@@ -1,0 +1,1 @@
+npx nodemon --ext .ts --exec "deno run --allow-read main.ts example.ljs"

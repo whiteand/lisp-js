@@ -1,8 +1,9 @@
 import { ILocation } from "./ILocation.ts";
 import { LocatedChar } from "./LocatedChar.ts";
-import { ISourceCharIterator } from './ISourceCharIterator.ts'
+import { IBackableIterator } from "./IBackableIterator.ts";
 
-export class SourceCharIterator implements ILocation, ISourceCharIterator {
+export class SourceCharIterator
+  implements ILocation, IBackableIterator<LocatedChar> {
   private text: string;
   private ptr: number;
   private _line: number;

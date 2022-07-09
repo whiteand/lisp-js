@@ -1,4 +1,5 @@
 import { ILocatedChar } from "./ILocatedChar.ts";
+import { renderLocation } from "./renderLocation.ts";
 import { SourceLocation } from "./SourceLocation.ts";
 
 export class LocatedChar extends SourceLocation implements ILocatedChar {
@@ -8,6 +9,6 @@ export class LocatedChar extends SourceLocation implements ILocatedChar {
     this.char = char;
   }
   toString() {
-    return `${super.toString()} :: "${this.char}"`;
+    return `${renderLocation(this)} :: "${this.char}"`;
   }
 }
