@@ -6,6 +6,7 @@ import { ILocationRange } from "./ILocationRange.ts";
 import { renderColoredExpression } from "./renderExpression.ts";
 import { LispExpression } from "./ast.ts";
 import { renderLexem } from "./renderLexem.ts";
+import { getLines } from "./utils/getLines.ts";
 
 export class LispSyntaxError extends Error implements ILocationRange {
   public start: ILocation;
@@ -37,10 +38,16 @@ export class LispSyntaxError extends Error implements ILocationRange {
     message: string,
     expression: LispExpression,
   ): LispSyntaxError {
+    const innerMessage = [];
+    innerMessage.push("Expression:");
+    innerMessage.push("\t" + renderColoredExpression(expression));
+    innerMessage.push(colors.red("SyntaxError:"));
+    const messageLines = getLines(message, 75);
+    for (const line of messageLines) {
+      innerMessage.push("\t" + line);
+    }
     return new LispSyntaxError(
-      `Expression:\n\t${renderColoredExpression(expression)}\n${
-        colors.red("SyntaxError:")
-      }\n\t${message}`,
+      innerMessage.join("\n"),
       expression.start,
       expression.end,
     );

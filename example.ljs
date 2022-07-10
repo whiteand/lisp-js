@@ -21,3 +21,8 @@
 
 (const x 42)
 (log x)
+
+(const y 36)
+(const res (+ x y))
+(log res)
+
