@@ -74,13 +74,22 @@ export function lispExpressionToJsExpression(
         optional: false,
         span: SPAN,
         value: expr.name,
-      }
+      };
     }
     invariant(
       false,
       `cannot read value defined here: ${JSON.stringify(definition)}`,
       expr,
     );
+  }
+  if (expr.nodeType === "Vector") {
+    return {
+      type: "ArrayExpression",
+      span: SPAN,
+      elements: expr.elements.map((e) => ({
+        expression: lispExpressionToJsExpression(state, e),
+      })),
+    };
   }
   invariant(false, "cannot compile to js", expr);
 }

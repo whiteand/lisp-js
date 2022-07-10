@@ -1,19 +1,17 @@
 import { compile as compileStep } from "../compile/mod.ts";
 import { colors } from "../deps.ts";
 import { getLexems } from "../getLexems/getLexems.ts";
-import { getLocatedCharsIterator } from "../getLocatedCharsIterator.ts";
-import { parseExpressions } from "../parseExpressions/parseExpressions.ts";
-import { renderNode } from "../js-ast/renderNode.ts";
 import { LexicalError } from "../getLexems/LexicalError.ts";
+import { getLocatedCharsIterator } from "../getLocatedCharsIterator.ts";
+import { ICompilerArgs } from "../ICompilerArgs.ts";
+import { renderNode } from "../js-ast/renderNode.ts";
 import { LispSyntaxError } from "../LispSyntaxError.ts";
-
-interface ICompileOptions {
-  entrypointFilePath: string;
-}
+import { parseExpressions } from "../parseExpressions/parseExpressions.ts";
 
 export async function compile(
-  { entrypointFilePath }: ICompileOptions,
+  compilerArgs: ICompilerArgs,
 ): Promise<void> {
+  const { entrypointFilePath } = compilerArgs;
   const character$ = await getLocatedCharsIterator(entrypointFilePath);
 
   const lexem$ = getLexems(character$);
@@ -34,8 +32,16 @@ export async function compile(
   } catch (error) {
     if (error instanceof LexicalError) {
       error.log();
+      if (compilerArgs.showStack) {
+        console.log(colors.blue("Stack:"));
+        console.log(error.stack);
+      }
     } else if (error instanceof LispSyntaxError) {
       error.log();
+      if (compilerArgs.showStack) {
+        console.log(colors.blue("Stack:"));
+        console.log(error.stack);
+      }
     } else {
       console.error(error.message);
       console.error(error.stack);

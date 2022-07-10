@@ -31,3 +31,7 @@ const SPACE_REGEX = /^\s+$/;
 export function isSpace(char: string): boolean {
   return SPACE_REGEX.test(char);
 }
+
+export function isReplacableBySpace(char: string): boolean {
+  return isSpace(char) || char === ",";
+}

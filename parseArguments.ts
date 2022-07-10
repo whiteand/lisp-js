@@ -12,10 +12,20 @@ export async function parseArguments(): Promise<
     command,
     entrypointFilePath: "",
     colors: false,
+    showStack: false,
   };
   for (const arg of Deno.args.slice(1)) {
     if (arg === "--colors") {
       args.colors = true;
+      continue
+    }
+    if (arg === "--show-stack") {
+      args.showStack = true;
+      continue
+    }
+    if (arg === "--help") {
+      logHelp();
+      continue
     }
     args.entrypointFilePath = arg;
   }
@@ -42,7 +52,12 @@ function logHelp() {
     ljs run [entrypoint.ljs]
     ljs compile [entrypoint.ljs]
   options:
-    --colors  enables colors in the output (default: false).
-              Applicable only for "run" command
+    --colors
+        Enables colors in the output (default: false).
+        Applicable only for "run" command
+
+    --showStack 
+        Shows stack trace of lexical and syntax errors
+        For now applicable only for "compile" command
   `);
 }

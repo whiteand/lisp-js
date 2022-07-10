@@ -1,5 +1,6 @@
 import { colors } from "../deps.ts";
 import { renderColoredExpression } from "../renderExpression.ts";
+import { renderLocation } from "../renderLocation.ts";
 import { TParseStackItem } from "./TParseStackItem.ts";
 
 function renderColoredStackItem(stackItem: TParseStackItem): string {
@@ -19,6 +20,9 @@ function renderColoredStackItem(stackItem: TParseStackItem): string {
           : stackItem.start,
       })
     }`;
+  }
+  if (stackItem.stackType === "location") {
+    return colors.gray(renderLocation(stackItem.location));
   }
 
   // deno-lint-ignore no-explicit-any

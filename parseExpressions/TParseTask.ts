@@ -26,4 +26,10 @@ export type TParseTask =
   }
   | {
     type: "append_to_expression_list";
+  }
+  | {
+    type: "create_vector_expression";
+  }
+  | {
+    type: "parse_close_bracket_and_push_location";
   };

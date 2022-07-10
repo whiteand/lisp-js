@@ -13,8 +13,11 @@ export function renderLexem(lexem: TLexem): string {
   if (lexem.type === "symbol") {
     return lexem.value;
   }
-  if (lexem.type === 'comment') {
-    return `// ${lexem.value}`
+  if (lexem.type === "comment") {
+    return `// ${lexem.value}`;
   }
-  return JSON.stringify(lexem);
+  if (lexem.type === "newline") {
+    return `\n`;
+  }
+  throw new Error("Not handled lexem: " + JSON.stringify(lexem));
 }

@@ -15,6 +15,8 @@ interface INewLineLexem {
 export type TLexem =
   | "("
   | ")"
+  | "]"
+  | "["
   | " "
   | INewLineLexem
   | number

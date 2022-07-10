@@ -1,5 +1,5 @@
 import { assert } from "../assert.ts";
-import { LispExpression } from "../ast.ts";
+import { IVectorExpression, LispExpression } from "../ast.ts";
 import { createBackableIterator } from "../createBackableIterator.ts";
 import { ILocatedLexem } from "../ILocatedLexem.ts";
 import { LispSyntaxError } from "../LispSyntaxError.ts";
@@ -109,6 +109,19 @@ export function* parseExpressions(
         continue nextTask;
       }
 
+      if (lexem === "[") {
+        tasks.push(
+          makeTask("create_vector_expression"),
+          makeTask("parse_close_bracket_and_push_location"),
+          makeTask("parse_expressions_list"),
+          {
+            type: "push_expression_list_array",
+            start: locatedLexem.start,
+          },
+        );
+        continue nextTask;
+      }
+
       if (typeof lexem === "number") {
         stack.push({
           stackType: "expression",
@@ -136,19 +149,15 @@ export function* parseExpressions(
       }
 
       if (lexem === ")") {
-        logSyntaxAnalyzerState(
-          stack,
-          [...tasks, task],
-          locatedLexem$.getEntries().slice(
-            0,
-            locatedLexem$.getNextEntryIndex(),
-          ),
-        );
         throw LispSyntaxError.fromLocatedLexem(
           `Unexpected ')'`,
           locatedLexem,
         );
       }
+      if (lexem === "]") {
+        throw LispSyntaxError.fromLocatedLexem('Unexpected "]"', locatedLexem);
+      }
+
       if (lexem.type === "symbol") {
         stack.push({
           stackType: "expression",
@@ -245,6 +254,28 @@ export function* parseExpressions(
       });
       continue nextTask;
     }
+    if (task.type === "parse_close_bracket_and_push_location") {
+      const locatedLexemEntry = locatedLexem$.next();
+      if (locatedLexemEntry.done) {
+        throw LispSyntaxError.fromLocatedLexem(
+          "expected ']', but end of code was reached",
+          locatedLexem$.getLastValue(),
+        );
+      }
+      const locatedLexem = locatedLexemEntry.value;
+      const { lexem } = locatedLexem;
+      if (lexem !== "]") {
+        throw LispSyntaxError.fromLocatedLexem(
+          `expected ']' but got: ${renderLexem(lexem)}`,
+          locatedLexem,
+        );
+      }
+      stack.push({
+        stackType: "location",
+        location: locatedLexem.end,
+      });
+      continue nextTask;
+    }
     if (task.type === "create_list_expression") {
       const closeParensLocation = stack.pop();
       invariant(
@@ -276,6 +307,37 @@ export function* parseExpressions(
       });
       continue;
     }
+    if (task.type === "create_vector_expression") {
+      const closeBracketLocation = stack.pop();
+      invariant(
+        closeBracketLocation,
+        "cannot get close parens location from empty stack",
+      );
+      invariant(
+        closeBracketLocation.stackType === "location",
+        "expected location on the stack",
+      );
+      const expressionListItem = stack.pop();
+      invariant(
+        expressionListItem,
+        "cannot get function call expressions from empty stack",
+      );
+      invariant(
+        expressionListItem.stackType === "expression_list",
+        "expected expression list on the stack",
+      );
+      const functionCallExpression: IVectorExpression = {
+        nodeType: "Vector",
+        elements: expressionListItem.expressionList,
+        start: expressionListItem.start,
+        end: closeBracketLocation.location,
+      };
+      stack.push({
+        stackType: "expression",
+        expression: functionCallExpression,
+      });
+      continue;
+    }
 
     invariant(false, `Syntax Parser failed executing ${task.type}`, {
       stack,
@@ -288,5 +350,5 @@ export function* parseExpressions(
 function isFinishExpressionListLexem(
   lexem: TLexem,
 ) {
-  return lexem === ")";
+  return lexem === ")" || lexem === "]";
 }

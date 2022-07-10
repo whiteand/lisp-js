@@ -8,6 +8,7 @@ import {
   isDigit,
   isIdCharacter,
   isIdStartCharacter,
+  isReplacableBySpace,
   isSpace,
 } from "./utils.ts";
 import { ILocation } from "../ILocation.ts";
@@ -83,13 +84,13 @@ export function* getLexems(
         );
         continue nextChar;
       }
-      if (isSpace(char)) {
+      if (isReplacableBySpace(char)) {
         while (true) {
           const nextEntry = input.next();
           if (nextEntry.done) {
             break nextChar;
           }
-          if (!isSpace(nextEntry.value.char)) {
+          if (!isReplacableBySpace(nextEntry.value.char)) {
             input.back();
             break;
           }
@@ -104,6 +105,14 @@ export function* getLexems(
       }
       if (char === ")") {
         yield makeLexem(")", locatedChar, locatedChar);
+        continue;
+      }
+      if (char === "[") {
+        yield makeLexem("[", locatedChar, locatedChar);
+        continue;
+      }
+      if (char === "]") {
+        yield makeLexem("]", locatedChar, locatedChar);
         continue;
       }
       if (isDigit(char)) {

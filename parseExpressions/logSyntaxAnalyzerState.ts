@@ -30,8 +30,11 @@ export function logSyntaxAnalyzerState(
     console.log(renderColoredTask(task));
   }
   console.log(colors.blue("code that was read:"));
-  const lexems = readEntries.map((e) => e.value.lexem);
+  console.log(colors.gray("```lisp-js"));
+  const lexems = readEntries.slice(-10).map((e) => e.value.lexem);
   console.log(renderLexems(lexems));
+  console.log(colors.gray("```"));
+  console.log();
 }
 
 function renderLexems(lexems: TLexem[]) {
@@ -43,7 +46,10 @@ function renderLexems(lexems: TLexem[]) {
       lastLexem = lexem;
       continue;
     }
-    if (lastLexem === "(" || lastLexem === ' ') {
+    if (
+      lastLexem === "(" || lastLexem === " " || lastLexem === "[" || lexem ===
+        "]"
+    ) {
       res += renderLexem(lexem);
       lastLexem = lexem;
       continue;

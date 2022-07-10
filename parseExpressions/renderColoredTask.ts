@@ -11,7 +11,9 @@ const ONLY_TYPE_TASK_TYPES = [
   "create_list_expression",
   "parse_expressions_list",
   "append_to_expression_list",
-  'parse_close_parens_and_push_location'
+  "parse_close_parens_and_push_location",
+  "parse_close_bracket_and_push_location",
+  "create_vector_expression",
 ] as const;
 
 const ONLY_TYPE_TASK_SET = new Set<string>(ONLY_TYPE_TASK_TYPES);

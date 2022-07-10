@@ -1,7 +1,7 @@
 {
   "tasks": {
     "build": "deno compile --unstable --allow-net --allow-write --allow-read ljs.ts",
-    "dev": "npx nodemon --ext .ts,.ljs --exec \"deno task build && ljs run --colors example.ljs\"",
-    "dev:compile": "npx nodemon --ext .ts,.ljs --exec \"deno task build && ljs compile example.ljs\""
+    "dev": "npx nodemon --ext .ts,.ljs --exec \"deno task build && ljs run --colors --show-stack example.ljs\"",
+    "dev:compile": "npx nodemon --ext .ts,.ljs --exec \"deno task build && ljs compile --show-stack example.ljs\""
   }
 }

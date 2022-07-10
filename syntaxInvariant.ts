@@ -7,7 +7,6 @@ export function invariant<T>(
   expr: LispExpression,
 ): asserts condition {
   if (!condition) {
-    LispSyntaxError.fromExpression(message, expr).log();
-    Deno.exit(1);
+    throw LispSyntaxError.fromExpression(message, expr);
   }
 }
