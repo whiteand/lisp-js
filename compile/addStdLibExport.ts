@@ -34,5 +34,5 @@ export function addStdLibExport(
   program.body.push(exportDeclaration);
   state.stdLib.scope.define(nameSymbol.name, {
     definitionType: "stdlib_export",
-  });
+  }, nameSymbol);
 }

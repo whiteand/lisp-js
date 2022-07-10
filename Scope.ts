@@ -1,4 +1,6 @@
 import { IList, LispExpression } from "./ast.ts";
+import { LispSyntaxError } from "./LispSyntaxError.ts";
+import { renderLocation } from "./renderLocation.ts";
 
 export interface ITree<T> {
   readonly parent: T | null;
@@ -13,7 +15,13 @@ export interface IDefinitionTree {
 export interface IScope extends ITree<IScope> {
   getDefinition(symbol: string): TDefinition | null;
   getDefinitions(): Record<string, TDefinition>;
-  define(symbol: string, definition: TDefinition): void;
+  forceDefine(symbol: string, definition: TDefinition): void;
+  define(
+    symbol: string,
+    definition: TDefinition,
+    declaration: LispExpression,
+  ): void;
+
   createChild(): IScope;
 }
 
@@ -32,8 +40,8 @@ interface IExpressionDefinition {
 
 interface IConstDefinition {
   definitionType: "Const";
-  declaration: IList
-  value: LispExpression
+  declaration: IList;
+  value: LispExpression;
 }
 
 export type TDefinition =
@@ -80,10 +88,29 @@ export class Scope implements IScope {
     return res;
   }
 
+  public forceDefine(name: string, definition: TDefinition): void {
+    this.definitionBySymbolName.set(name, definition);
+  }
+
   public define(
     name: string,
     definition: TDefinition,
+    declaration: LispExpression,
   ): void {
+    const previousDefinition = this.definitionBySymbolName.get(name);
+    if (!previousDefinition) {
+      this.forceDefine(name, definition);
+      return;
+    }
+    if (previousDefinition.definitionType === "Const") {
+      throw LispSyntaxError.fromExpression(
+        `cannot redeclare constant "${name}".\nIt was already defined at ${
+          renderLocation(previousDefinition.declaration.start)
+        }`,
+        declaration,
+      );
+    }
+    this.forceDefine(name, definition);
     this.definitionBySymbolName.set(name, definition);
   }
 

@@ -82,6 +82,10 @@ function evaluate(
       return evaluate(compilerArgs, scope, definition.expression);
     }
 
+    if (definition.definitionType === "Const") {
+      return definition.value;
+    }
+
     invariant(false, "Unexpected definition type", e);
   }
 
@@ -346,9 +350,8 @@ function executeScopeOperator(
       definitionType: "Const",
       value,
       declaration: e,
-    });
+    }, e);
     return VOID;
   }
   invariant(false, "Cannot handle this scope operator", e);
-  throw new Error("Function not implemented.");
 }

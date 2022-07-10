@@ -32,7 +32,7 @@ export function addStdLibImport(
     stdLibImportDeclaration.specifiers.push(newImportSpecifier);
     state.indexJs.scope.define(nameExpr.name, {
       definitionType: "import_from_std",
-    });
+    }, nameExpr);
     return;
   }
   state.indexJs.ast.body.unshift({
@@ -48,5 +48,5 @@ export function addStdLibImport(
   });
   state.indexJs.scope.define(nameExpr.name, {
     definitionType: "import_from_std",
-  });
+  }, nameExpr);
 }
