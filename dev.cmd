@@ -1,1 +1,0 @@
-npx nodemon --ext .ts,.ljs --exec "build && ljs run example.ljs"

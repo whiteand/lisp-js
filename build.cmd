@@ -1,1 +1,0 @@
-deno compile --unstable --allow-net --allow-write --allow-read ljs.ts
