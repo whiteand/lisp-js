@@ -75,6 +75,13 @@ export function forEachNode(
       nodes.push(node.expression);
       continue;
     }
+    if (node.type === "ArrayExpression") {
+      for (const n of node.elements) {
+        if (!n) continue;
+        nodes.push(n.expression);
+      }
+      continue;
+    }
 
     if (node.type === "ImportDeclaration") {
       nodes.push(node.source);

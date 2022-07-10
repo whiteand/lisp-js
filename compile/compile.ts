@@ -3,10 +3,11 @@ import { swc } from "../deps.ts";
 import { Module } from "../js-ast/swc.ts";
 import { compileStatement } from "./compileStatement.ts";
 import { invariant } from "../syntaxInvariant.ts";
-import { SPAN, STD_LIB_FILE } from "./constants.ts";
+import { OUT_ENTRYPOINT_PATH, SPAN } from "./constants.ts";
 import { Scope } from "../Scope.ts";
 import { STD } from "./std-code.ts";
 import { IBundleFile, ICompilerState } from "./types.ts";
+import { injectDefaultExportMain } from "./injectDefaultExportMain.ts";
 
 export function* compile(
   expression$: Iterable<LispExpression>,
@@ -14,26 +15,21 @@ export function* compile(
   const fullStdLibAst = swc.parse(STD, { syntax: "ecmascript" }) as Module;
 
   const state: ICompilerState = {
+    files: {
+      [OUT_ENTRYPOINT_PATH]: {
+        ast: {
+          type: "Module",
+          span: SPAN,
+          interpreter: null,
+          body: [],
+        },
+        scope: new Scope(null),
+      },
+    },
     fullStdLibAst,
-    stdLib: {
-      ast: {
-        type: "Module",
-        interpreter: null,
-        span: SPAN,
-        body: [],
-      },
-      scope: new Scope(null),
-    },
-    indexJs: {
-      ast: {
-        type: "Module",
-        span: SPAN,
-        interpreter: null,
-        body: [],
-      },
-      scope: new Scope(null),
-    },
   };
+
+  injectDefaultExportMain(state, OUT_ENTRYPOINT_PATH);
 
   for (const expr of expression$) {
     invariant(
@@ -64,12 +60,7 @@ export function* compile(
   }
 
   yield {
-    relativePath: STD_LIB_FILE,
-    ast: state.stdLib.ast,
-  };
-
-  yield {
     relativePath: "index.js",
-    ast: state.indexJs.ast,
+    ast: state.files[OUT_ENTRYPOINT_PATH].ast,
   };
 }

@@ -68,13 +68,8 @@ function evaluate(
     const definition = scope.getDefinition(e.name);
     invariant(definition, "Undefined symbol", e);
     invariant(
-      definition.definitionType !== "import_from_std",
-      "Unexpected calculation of imported symbol",
-      e,
-    );
-    invariant(
-      definition.definitionType !== "stdlib_export",
-      "Unexpected std lib export symbol calculation",
+      definition.definitionType !== "injected_stdlib_function",
+      "Unexpected calculation of injected_function",
       e,
     );
 

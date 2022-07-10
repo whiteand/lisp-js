@@ -2,8 +2,8 @@ import { IList, ISymbol } from "../ast.ts";
 import { Statement } from "../js-ast/swc.ts";
 import { isScopeOperatorName } from "../ScopeOperatorName.ts";
 import { invariant } from "../syntaxInvariant.ts";
-import { appendStatement } from "./appendStatement.ts";
-import { SPAN } from "./constants.ts";
+import { appendStatement, appendToMain } from "./appendStatement.ts";
+import { OUT_ENTRYPOINT_PATH, SPAN } from "./constants.ts";
 import { lispExpressionToJsExpression } from "./lispExpressionToJsExpression.ts";
 import { ICompilerState } from "./types.ts";
 
@@ -48,12 +48,14 @@ export function compileStatement(
             },
           ],
         };
-        state.indexJs.scope.define(symbol.name, {
+
+        state.files[OUT_ENTRYPOINT_PATH].scope.define(symbol.name, {
           definitionType: "Const",
           declaration: expr,
           value,
         }, expr);
-        appendStatement(state.indexJs.ast, constStatement);
+
+        appendToMain(state.files[OUT_ENTRYPOINT_PATH].ast, constStatement);
 
         return;
       }
@@ -68,7 +70,7 @@ export function compileStatement(
       span: SPAN,
       expression: jsExpression,
     };
-    appendStatement(state.indexJs.ast, expressionStatement);
+    appendToMain(state.files[OUT_ENTRYPOINT_PATH].ast, expressionStatement);
     return;
   }
   invariant(false, "invalid global statement", expr);

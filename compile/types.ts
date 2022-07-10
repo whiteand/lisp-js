@@ -14,7 +14,6 @@ export interface IBundleFileState {
 }
 
 export interface ICompilerState {
-  stdLib: IBundleFileState;
-  indexJs: IBundleFileState;
+  files: Record<string, IBundleFileState>
   fullStdLibAst: Module;
 }

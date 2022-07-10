@@ -25,17 +25,17 @@ export interface IScope extends ITree<IScope> {
   createChild(): IScope;
 }
 
-interface IStdLibExportDefinition {
-  definitionType: "stdlib_export";
-}
-
-interface IImportFromStdDefinition {
-  definitionType: "import_from_std";
+interface InjectedFromStdLib {
+  definitionType: "injected_stdlib_function";
 }
 
 interface IExpressionDefinition {
   definitionType: "ExpressionDefinition";
   expression: LispExpression;
+}
+
+interface DefaultFunctionNameDefinition {
+  definitionType: "DefaultFunctionName";
 }
 
 interface IConstDefinition {
@@ -45,10 +45,10 @@ interface IConstDefinition {
 }
 
 export type TDefinition =
-  | IStdLibExportDefinition
   | IExpressionDefinition
+  | DefaultFunctionNameDefinition
   | IConstDefinition
-  | IImportFromStdDefinition;
+  | InjectedFromStdLib;
 
 export class Scope implements IScope {
   public readonly parent: IScope | null;

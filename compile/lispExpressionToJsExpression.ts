@@ -1,10 +1,9 @@
-import { LispExpression } from "../ast.ts";
-import { Argument, Expression } from "../js-ast/swc.ts";
+import { ISymbol, LispExpression } from "../ast.ts";
+import { Argument, Expression, FunctionDeclaration } from "../js-ast/swc.ts";
+import { getNodeByType, querySelector } from "../js-ast/traverse.ts";
 import { invariant } from "../syntaxInvariant.ts";
-import { addStdLibExport } from "./addStdLibExport.ts";
-import { addStdLibImport } from "./addStdLibImport.ts";
 import { binaryOperatorFunctionCallToJsExpression } from "./binaryOperatorFunctionCallToJsExpression.ts";
-import { SPAN } from "./constants.ts";
+import { OUT_ENTRYPOINT_PATH, SPAN } from "./constants.ts";
 import { isBinaryOperator } from "./isBinaryOperator.ts";
 import { isStdLibFunction } from "./isStdLibFunction.ts";
 import { ICompilerState } from "./types.ts";
@@ -26,14 +25,17 @@ export function lispExpressionToJsExpression(
         return binaryOperatorFunctionCallToJsExpression(state, expr);
       }
 
-      const definition = state.indexJs.scope.getDefinition(functionName);
+      const definition = state.files[OUT_ENTRYPOINT_PATH].scope.getDefinition(
+        functionName,
+      );
 
       if (!definition) {
         if (isStdLibFunction(functionName)) {
-          if (!state.stdLib.scope.getDefinition(functionName)) {
-            addStdLibExport(state, funcExpression);
-          }
-          addStdLibImport(state, funcExpression);
+          appendStdLibFunctionDeclaration(
+            state,
+            OUT_ENTRYPOINT_PATH,
+            funcExpression,
+          );
         } else {
           invariant(
             false,
@@ -66,7 +68,9 @@ export function lispExpressionToJsExpression(
     };
   }
   if (expr.nodeType === "Symbol") {
-    const definition = state.indexJs.scope.getDefinition(expr.name);
+    const definition = state.files[OUT_ENTRYPOINT_PATH].scope.getDefinition(
+      expr.name,
+    );
     invariant(definition, "undefined symbol", expr);
     if (definition.definitionType === "Const") {
       return {
@@ -92,4 +96,41 @@ export function lispExpressionToJsExpression(
     };
   }
   invariant(false, "cannot compile to js", expr);
+}
+
+function appendStdLibFunctionDeclaration(
+  state: ICompilerState,
+  filePath: string,
+  functionNameSymbol: ISymbol,
+) {
+  const file = state.files[filePath];
+  const stdAst = state.fullStdLibAst;
+  const program = getNodeByType("Module", file.ast);
+  invariant(
+    program,
+    "cannot find program node in std lib file",
+    functionNameSymbol,
+  );
+
+  const stdFuncDeclaration = querySelector<FunctionDeclaration>(
+    (node): node is FunctionDeclaration => {
+      if (node.type !== "FunctionDeclaration") {
+        return false;
+      }
+      if (node.identifier.value !== functionNameSymbol.name) {
+        return false;
+      }
+      return true;
+    },
+    stdAst,
+  );
+  invariant(
+    stdFuncDeclaration,
+    "There is no such standard library function",
+    functionNameSymbol,
+  );
+  program.body.unshift(stdFuncDeclaration);
+  file.scope.define(functionNameSymbol.name, {
+    definitionType: "injected_stdlib_function",
+  }, functionNameSymbol);
 }
