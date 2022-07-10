@@ -166,6 +166,7 @@ export function* parseExpressions(
             name: lexem.value,
             start: locatedLexem.start,
             end: locatedLexem.end,
+            member: lexem.value.startsWith("."),
           },
         });
         continue nextTask;

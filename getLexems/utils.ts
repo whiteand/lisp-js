@@ -20,7 +20,7 @@ export function isDigit(letter: string) {
 }
 
 export function isIdStartCharacter(char: string) {
-  return isLetter(char) || "_+*/-$".includes(char);
+  return isLetter(char) || "._+*/-$".includes(char);
 }
 
 export function isIdCharacter(char: string) {

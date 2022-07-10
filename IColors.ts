@@ -32,6 +32,7 @@ export interface IColors {
   bgMagenta: (s: string) => string;
   bgCyan: (s: string) => string;
   bgWhite: (s: string) => string;
+  rgb24: (s: string, color: number) => string;
   bgBrightBlack: (s: string) => string;
   bgBrightRed: (s: string) => string;
   bgBrightGreen: (s: string) => string;

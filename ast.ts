@@ -6,6 +6,7 @@ export type LispExpression =
   | ISymbol
   | IBigIntNumber
   | INumber
+  | IString
   | IVectorExpression
   | IVoidExpression;
 
@@ -25,6 +26,12 @@ export interface IList extends ILocationRange {
 export interface ISymbol extends ILocationRange {
   nodeType: "Symbol";
   name: string;
+  member: boolean;
+}
+export interface IString extends ILocationRange {
+  nodeType: "String";
+  value: string
+  hasEscape: boolean
 }
 export interface INumber extends ILocationRange {
   nodeType: "Number";

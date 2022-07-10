@@ -6,6 +6,7 @@ function identity<T>(s: T): T {
 
 export const noColors: IColors = {
   bgBlack: identity,
+  rgb24: identity,
   bgBlue: identity,
   bgBrightBlack: identity,
   bgBrightBlue: identity,

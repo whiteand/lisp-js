@@ -6,6 +6,7 @@ import { binaryOperatorFunctionCallToJsExpression } from "./binaryOperatorFuncti
 import { OUT_ENTRYPOINT_PATH, SPAN } from "./constants.ts";
 import { isBinaryOperator } from "./isBinaryOperator.ts";
 import { isStdLibFunction } from "./isStdLibFunction.ts";
+import { methodCall } from "./methodCall.ts";
 import { ICompilerState } from "./types.ts";
 
 export function lispExpressionToJsExpression(
@@ -23,6 +24,10 @@ export function lispExpressionToJsExpression(
       const functionName = funcExpression.name;
       if (isBinaryOperator(functionName)) {
         return binaryOperatorFunctionCallToJsExpression(state, expr);
+      }
+
+      if (funcExpression.member) {
+        return methodCall(state, expr);
       }
 
       const definition = state.files[OUT_ENTRYPOINT_PATH].scope.getDefinition(
