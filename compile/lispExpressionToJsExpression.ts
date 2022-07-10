@@ -2,9 +2,12 @@ import { LispExpression } from "../ast.ts";
 import { Argument, Expression } from "../js-ast/swc.ts";
 import { LispSyntaxError } from "../LispSyntaxError.ts";
 import { binaryOperatorFunctionCallToJsExpression } from "./binaryOperatorFunctionCallToJsExpression.ts";
+import { addStdLibExport } from "./addStdLibExport.ts";
+import { addStdLibImport } from "./addStdLibImport.ts";
 import { SPAN } from "./constants.ts";
 import { isBinaryOperator } from "./isBinaryOperator.ts";
 import { ICompilerState } from "./types.ts";
+import { isStdLibFunction } from "./isStdLibFunction.ts";
 
 export function lispExpressionToJsExpression(
   state: ICompilerState,
@@ -23,6 +26,23 @@ export function lispExpressionToJsExpression(
       if (isBinaryOperator(functionName)) {
         return binaryOperatorFunctionCallToJsExpression(state, expr);
       }
+
+      const definition = state.indexJs.scope.getDefinition(functionName);
+
+      if (!definition) {
+        if (isStdLibFunction(functionName)) {
+          if (!state.stdLib.scope.getDefinition(functionName)) {
+            addStdLibExport(state, funcExpression);
+          }
+          addStdLibImport(state, funcExpression);
+        } else {
+          throw LispSyntaxError.fromExpression(
+            `function ${functionName} is not defined`,
+            funcExpression,
+          );
+        }
+      }
+
       return {
         type: "CallExpression",
         callee: {

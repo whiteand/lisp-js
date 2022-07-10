@@ -1,20 +1,21 @@
+import { ISymbol } from "../ast.ts";
 import { ImportDeclaration, ImportSpecifier } from "../js-ast/swc.ts";
 import { querySelector } from "../js-ast/traverse.ts";
-import { IBundleFileState } from "./types.ts";
 import {
   SPAN,
   STD_LIB_FILE,
   STD_LIB_FILE_WITHOUT_EXTENSION,
 } from "./constants.ts";
+import { ICompilerState } from "./types.ts";
 
 export function addStdLibImport(
-  indexJsFile: IBundleFileState,
-  name: string,
+  state: ICompilerState,
+  nameExpr: ISymbol,
 ): void {
   const stdLibImportDeclaration = querySelector<ImportDeclaration>(
     (node): node is ImportDeclaration =>
       node.type === "ImportDeclaration" && node.source.value === STD_LIB_FILE,
-    indexJsFile.ast,
+    state.indexJs.ast,
   );
   const newImportSpecifier: ImportSpecifier = {
     span: SPAN,
@@ -24,15 +25,17 @@ export function addStdLibImport(
       type: "Identifier",
       optional: false,
       span: SPAN,
-      value: name,
+      value: nameExpr.name,
     },
   };
   if (stdLibImportDeclaration) {
     stdLibImportDeclaration.specifiers.push(newImportSpecifier);
-    indexJsFile.importedSymbols.add(name);
+    state.indexJs.scope.define(nameExpr.name, {
+      definitionType: "import_from_std",
+    });
     return;
   }
-  indexJsFile.ast.body.unshift({
+  state.indexJs.ast.body.unshift({
     type: "ImportDeclaration",
     source: {
       type: "StringLiteral",
@@ -43,5 +46,7 @@ export function addStdLibImport(
     span: SPAN,
     specifiers: [newImportSpecifier],
   });
-  indexJsFile.importedSymbols.add(name);
+  state.indexJs.scope.define(nameExpr.name, {
+    definitionType: "import_from_std",
+  });
 }

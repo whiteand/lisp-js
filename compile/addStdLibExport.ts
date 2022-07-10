@@ -1,16 +1,15 @@
 import { assert } from "../assert.ts";
 import { ISymbol } from "../ast.ts";
-import { ExportDeclaration, Module } from "../js-ast/swc.ts";
+import { ExportDeclaration } from "../js-ast/swc.ts";
 import { getNodeByType, querySelector } from "../js-ast/traverse.ts";
 import { LispSyntaxError } from "../LispSyntaxError.ts";
-import { IBundleFileState } from "./types.ts";
+import { ICompilerState } from "./types.ts";
 
 export function addStdLibExport(
-  fullStdLibAst: Module,
-  stdLibFile: IBundleFileState,
+  state: ICompilerState,
   nameSymbol: ISymbol,
 ): void {
-  const program = getNodeByType("Module", stdLibFile.ast);
+  const program = getNodeByType("Module", state.stdLib.ast);
   assert(program, "cannot find program node in std lib file");
 
   const exportDeclaration = querySelector<ExportDeclaration>(
@@ -26,7 +25,7 @@ export function addStdLibExport(
       }
       return true;
     },
-    fullStdLibAst,
+    state.fullStdLibAst,
   );
   if (!exportDeclaration) {
     throw LispSyntaxError.fromExpression(
@@ -34,6 +33,8 @@ export function addStdLibExport(
       nameSymbol,
     );
   }
-  stdLibFile.exportedSymbols.add(nameSymbol.name);
   program.body.push(exportDeclaration);
+  state.stdLib.scope.define(nameSymbol.name, {
+    definitionType: "stdlib_export",
+  });
 }

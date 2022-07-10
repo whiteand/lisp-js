@@ -1,4 +1,5 @@
 import { Module } from "../js-ast/swc.ts";
+import { IScope } from "./Scope.ts";
 
 export type StdLibFunctionName = "log";
 
@@ -9,8 +10,7 @@ export interface IBundleFile {
 
 export interface IBundleFileState {
   ast: Module;
-  importedSymbols: Set<string>;
-  exportedSymbols: Set<string>;
+  scope: IScope;
 }
 
 export interface ICompilerState {
