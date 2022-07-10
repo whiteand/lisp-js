@@ -1,9 +1,10 @@
-import { colors } from "../deps.ts";
+import { ColorsContext } from "../contexts/colors.ts";
 import { renderColoredExpression } from "../renderExpression.ts";
 import { renderLocation } from "../renderLocation.ts";
 import { TParseStackItem } from "./TParseStackItem.ts";
 
 function renderColoredStackItem(stackItem: TParseStackItem): string {
+  const colors = ColorsContext.getValue();
   if (stackItem.stackType === "expression") {
     return `${colors.yellow("expression")}: ${
       renderColoredExpression(stackItem.expression)

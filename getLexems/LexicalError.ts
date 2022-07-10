@@ -1,4 +1,3 @@
-import { colors } from "../deps.ts";
 import { ILocation } from "../ILocation.ts";
 import { renderLocation } from "../renderLocation.ts";
 
@@ -17,7 +16,9 @@ export class LexicalError extends Error {
     this.column = column;
     this.innerMessage = innerMessage;
   }
-  log(): void {
+  log(
+    colors: { gray: (s: string) => string; red: (s: string) => string },
+  ): void {
     console.error(
       `${colors.gray(renderLocation(this))} :: LexicalError: ${
         colors.red(this.innerMessage)

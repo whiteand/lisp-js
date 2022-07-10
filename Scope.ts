@@ -1,6 +1,7 @@
 import { IList, LispExpression } from "./ast.ts";
 import { LispSyntaxError } from "./LispSyntaxError.ts";
 import { renderLocation } from "./renderLocation.ts";
+import { invariant } from "./syntaxInvariant.ts";
 
 export interface ITree<T> {
   readonly parent: T | null;
@@ -102,6 +103,7 @@ export class Scope implements IScope {
       this.forceDefine(name, definition);
       return;
     }
+
     if (previousDefinition.definitionType === "Const") {
       throw LispSyntaxError.fromExpression(
         `cannot redeclare constant "${name}".\nIt was already defined at ${
@@ -110,8 +112,27 @@ export class Scope implements IScope {
         declaration,
       );
     }
-    this.forceDefine(name, definition);
-    this.definitionBySymbolName.set(name, definition);
+    if (previousDefinition.definitionType === "injected_stdlib_function") {
+      throw LispSyntaxError.fromExpression(
+        `"${name}" is name reserved for std library.`,
+        declaration,
+      );
+    }
+    if (previousDefinition.definitionType === "DefaultFunctionName") {
+      throw LispSyntaxError.fromExpression(
+        `"${name}" is reserved for the module export default function.`,
+        declaration,
+      );
+    }
+    if (previousDefinition.definitionType === "ExpressionDefinition") {
+      throw LispSyntaxError.fromExpression(
+        `cannot redeclare "${name}".\nIt was already defined at ${
+          renderLocation(previousDefinition.expression.start)
+        }`,
+        declaration,
+      );
+    }
+    invariant(false, "Unexpected redeclaration", declaration);
   }
 
   public createChild(): Scope {

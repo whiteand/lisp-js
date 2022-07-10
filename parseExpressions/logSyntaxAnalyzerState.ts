@@ -1,5 +1,4 @@
 import { assert } from "../assert.ts";
-import { colors } from "../deps.ts";
 import { ILocatedLexem } from "../ILocatedLexem.ts";
 import { renderLexem } from "../renderLexem.ts";
 import { logStackItem } from "./logStackItem.ts";
@@ -7,12 +6,14 @@ import { TParseStackItem } from "./TParseStackItem.ts";
 import { TParseTask } from "./TParseTask.ts";
 import { renderColoredTask } from "./renderColoredTask.ts";
 import { TLexem } from "../TLexem.ts";
+import { ColorsContext } from "../contexts/colors.ts";
 
 export function logSyntaxAnalyzerState(
   stack: TParseStackItem[],
   notFinishedTasks: TParseTask[],
   readEntries: IteratorYieldResult<ILocatedLexem>[],
 ): void {
+  const colors = ColorsContext.getValue();
   if (stack.length > 0) {
     console.error(colors.blue("stack:"));
     while (stack.length > 0) {

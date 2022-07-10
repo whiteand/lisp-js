@@ -1,4 +1,4 @@
-import { colors } from "../deps.ts";
+import { ColorsContext } from "../contexts/colors.ts";
 import { renderLocation } from "../renderLocation.ts";
 import { TParseTask } from "./TParseTask.ts";
 
@@ -24,6 +24,7 @@ function isOnlyTypeTask(
   return ONLY_TYPE_TASK_SET.has(task.type);
 }
 export function renderColoredTask(task: TParseTask): string {
+  const colors = ColorsContext.getValue();
   if (isOnlyTypeTask(task)) {
     return colors.yellow(task.type);
   }

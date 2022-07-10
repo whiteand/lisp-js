@@ -2,20 +2,25 @@ import { IList, ISymbol, IVoidExpression, LispExpression } from "../ast.ts";
 import { isBinaryOperator } from "../compile/isBinaryOperator.ts";
 import { isStdLibFunction } from "../compile/isStdLibFunction.ts";
 import { StdLibFunctionName } from "../compile/types.ts";
+import { ColorsContext } from "../contexts/colors.ts";
+import { colors as actualColors } from "../deps.ts";
 import { getLexems } from "../getLexems/getLexems.ts";
 import { getLocatedCharsIterator } from "../getLocatedCharsIterator.ts";
 import { ICompilerArgs } from "../ICompilerArgs.ts";
+import { noColors } from "../noColors.ts";
 import { parseExpressions } from "../parseExpressions/parseExpressions.ts";
-import {
-  renderColoredExpression,
-  renderExpression,
-} from "../renderExpression.ts";
+import { renderColoredExpression } from "../renderExpression.ts";
 import { IScope, Scope } from "../Scope.ts";
 import { isScopeOperatorName } from "../ScopeOperatorName.ts";
 import { SourceLocation } from "../SourceLocation.ts";
 import { invariant } from "../syntaxInvariant.ts";
+import { printCompilerError } from "./printCompilerError.ts";
 
 export async function run(compilerArgs: ICompilerArgs): Promise<void> {
+  const resetColorsContext = ColorsContext.provide(
+    compilerArgs.colors ? actualColors : noColors,
+  );
+  
   const character$ = await getLocatedCharsIterator(
     compilerArgs.entrypointFilePath,
   );
@@ -24,7 +29,14 @@ export async function run(compilerArgs: ICompilerArgs): Promise<void> {
 
   const expression$ = parseExpressions(lexem$);
 
-  interpret(compilerArgs, expression$);
+  try {
+    interpret(compilerArgs, expression$);
+  } catch (error) {
+    const colors = compilerArgs.colors ? actualColors : noColors;
+    printCompilerError(compilerArgs, error, colors);
+  } finally {
+    resetColorsContext();
+  }
 }
 
 function interpret(
@@ -316,7 +328,7 @@ function stdLibFunctionCall(
     }
     console.log(
       ...res.map(
-        compilerArgs.colors ? renderColoredExpression : renderExpression,
+        renderColoredExpression,
       ),
     );
     return VOID;

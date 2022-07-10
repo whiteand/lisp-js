@@ -1,7 +1,8 @@
 import { LispExpression } from "./ast.ts";
-import { colors } from "./deps.ts";
+import { ColorsContext } from "./contexts/colors.ts";
 
 export function renderColoredExpression(expr: LispExpression): string {
+  const colors = ColorsContext.getValue();
   if (expr.nodeType === "Number") {
     return `${colors.brightGreen(expr.value.toString())}`;
   }
@@ -25,26 +26,6 @@ export function renderColoredExpression(expr: LispExpression): string {
     return `${colors.magenta("[")}${
       expr.elements.map(renderColoredExpression).join(" ")
     }${colors.magenta("]")}`;
-  }
-
-  throw new Error("not handled expression: " + JSON.stringify(expr));
-}
-export function renderExpression(expr: LispExpression): string {
-  if (expr.nodeType === "Number") {
-    return expr.value.toString();
-  }
-
-  if (expr.nodeType === "List") {
-    return `(${expr.elements.map(renderExpression).join(" ")})`;
-  }
-  if (expr.nodeType === "Void") {
-    return 'void'
-  }
-  if (expr.nodeType === "Symbol") {
-    return expr.name
-  }
-  if (expr.nodeType === "Vector") {
-    return `[${expr.elements.map(renderExpression).join(" ")}]`;
   }
 
   throw new Error("not handled expression: " + JSON.stringify(expr));

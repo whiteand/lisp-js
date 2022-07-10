@@ -28,6 +28,9 @@ export function appendToMain(ast: Module, jsStatement: Statement): void {
   const ind = main.decl.body.stmts.findIndex((node) =>
     node.type === "ReturnStatement"
   );
-
-  main.decl.body.stmts.splice(ind, 0, jsStatement);
+  if (ind >= 0) {
+    main.decl.body.stmts.splice(ind, 0, jsStatement);
+  } else {
+    main.decl.body.stmts.push(jsStatement);
+  }
 }

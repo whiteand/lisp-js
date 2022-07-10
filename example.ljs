@@ -1,22 +1,7 @@
 // Single line comments look like this line
-
-// globally you can call functions and use mathematical expressions
-(log (+)) // => 0
-(log (+ 1)) // => 1
-(log (+ 1 2 3)) // => 6
-
-(log (*)) // => 1
-(log (* 2)) // => 2
-(log (* 1 2 5)) // => 10
-
-(log (-)) // => 0
-(log (- 1)) // => 1
-(log (- 1 2)) //  => -1
-
-(log (/)) // => 0
-(log (/ 1)) // => 1
-(log (/ 1 2))
-
+(const)
+(const z 32)
+(log z)
 // constants
 
 (const x 42)

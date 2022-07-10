@@ -1,12 +1,12 @@
 import { ILocation } from "./ILocation.ts";
 import { renderLocationRange } from "./renderLocationRange.ts";
-import { colors } from "./deps.ts";
 import { ILocatedLexem } from "./ILocatedLexem.ts";
 import { ILocationRange } from "./ILocationRange.ts";
 import { renderColoredExpression } from "./renderExpression.ts";
 import { LispExpression } from "./ast.ts";
 import { renderLexem } from "./renderLexem.ts";
 import { getLines } from "./utils/getLines.ts";
+import { ColorsContext } from "./contexts/colors.ts";
 
 export class LispSyntaxError extends Error implements ILocationRange {
   public start: ILocation;
@@ -38,6 +38,7 @@ export class LispSyntaxError extends Error implements ILocationRange {
     message: string,
     expression: LispExpression,
   ): LispSyntaxError {
+    const colors = ColorsContext.getValue();
     const innerMessage = [];
     innerMessage.push("Expression:");
     innerMessage.push("\t" + renderColoredExpression(expression));
@@ -58,7 +59,9 @@ export class LispSyntaxError extends Error implements ILocationRange {
   ): LispSyntaxError {
     return new LispSyntaxError(message, range.start, range.end);
   }
-  log(): void {
+  log(colors: {
+    gray: (s: string) => string;
+  }): void {
     console.error(
       `${this.innerMessage}\nat:\n\t${
         colors.gray(renderLocationRange(this.start, this.end))
