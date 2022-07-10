@@ -11,8 +11,11 @@ interface IExpressionListArray {
   start: ILocation;
 }
 interface IStackItemLocation {
-  stackType: 'location'
-  location: ILocation
+  stackType: "location";
+  location: ILocation;
 }
 
-export type TParseStackItem = IStackItemExpression | IExpressionListArray | IStackItemLocation;
+export type TParseStackItem =
+  | IStackItemExpression
+  | IExpressionListArray
+  | IStackItemLocation;

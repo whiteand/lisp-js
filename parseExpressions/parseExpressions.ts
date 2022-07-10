@@ -169,7 +169,7 @@ export function* parseExpressions(
             value: lexem.value,
           },
         });
-        continue
+        continue;
       }
 
       if (lexem.type === "symbol") {

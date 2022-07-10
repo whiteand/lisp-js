@@ -22,7 +22,9 @@ export function printCompilerError(
       console.log(formatStack(error.stack));
     }
   } else {
+    // deno-lint-ignore no-explicit-any
     console.error((error as any)?.message || "unknown error");
+    // deno-lint-ignore no-explicit-any
     const stack = formatStack((error as any).stack);
     console.error(stack);
   }

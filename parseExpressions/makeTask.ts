@@ -1,5 +1,5 @@
-import { TParseTask } from "./TParseTask.ts";
 import { Values } from "../Values.ts";
+import { TParseTask } from "./TParseTask.ts";
 
 type OnlyTypeTaskType = Values<
   {

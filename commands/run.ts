@@ -31,9 +31,9 @@ export async function run(compilerArgs: ICompilerArgs): Promise<void> {
 
   try {
     const timer = TimerContext.getValue();
-    timer.reset()
+    timer.reset();
     interpret(compilerArgs, expression$);
-    timer.finished('interpretation')
+    timer.finished("interpretation");
   } catch (error) {
     printCompilerError(compilerArgs, error);
   } finally {

@@ -1,12 +1,12 @@
 import { assert } from "../assert.ts";
+import { ColorsContext } from "../contexts/colors.ts";
 import { ILocatedLexem } from "../ILocatedLexem.ts";
 import { renderLexem } from "../renderLexem.ts";
+import { TLexem } from "../TLexem.ts";
 import { logStackItem } from "./logStackItem.ts";
+import { renderColoredTask } from "./renderColoredTask.ts";
 import { TParseStackItem } from "./TParseStackItem.ts";
 import { TParseTask } from "./TParseTask.ts";
-import { renderColoredTask } from "./renderColoredTask.ts";
-import { TLexem } from "../TLexem.ts";
-import { ColorsContext } from "../contexts/colors.ts";
 
 export function logSyntaxAnalyzerState(
   stack: TParseStackItem[],

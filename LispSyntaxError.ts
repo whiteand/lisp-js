@@ -1,12 +1,12 @@
-import { ILocation } from "./ILocation.ts";
-import { renderLocationRange } from "./renderLocationRange.ts";
+import { LispExpression } from "./ast.ts";
+import { ColorsContext } from "./contexts/colors.ts";
 import { ILocatedLexem } from "./ILocatedLexem.ts";
+import { ILocation } from "./ILocation.ts";
 import { ILocationRange } from "./ILocationRange.ts";
 import { renderExpression } from "./renderExpression.ts";
-import { LispExpression } from "./ast.ts";
 import { renderLexem } from "./renderLexem.ts";
+import { renderLocationRange } from "./renderLocationRange.ts";
 import { getLines } from "./utils/getLines.ts";
-import { ColorsContext } from "./contexts/colors.ts";
 
 export class LispSyntaxError extends Error implements ILocationRange {
   public start: ILocation;

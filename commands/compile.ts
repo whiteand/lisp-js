@@ -1,4 +1,4 @@
-import { compile as compileStep } from "../compile/mod.ts";
+import { compile as compileStep } from "../compile/compile.ts";
 import { ColorsContext } from "../contexts/colors.ts";
 import { ACTUAL_TIMER, NO_TIMER, TimerContext } from "../contexts/timer.ts";
 import { colors as actualColors } from "../deps.ts";
@@ -38,7 +38,7 @@ export async function compile(
   const expression$ = parseExpressions(lexem$);
   timer.finished("expression$ created");
 
-  const bundleFile$ = compileStep(expression$);
+  const bundleFile$ = await compileStep(expression$);
   timer.finished("bundleFile$ created");
 
   try {

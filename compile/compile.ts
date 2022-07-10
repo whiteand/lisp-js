@@ -1,18 +1,20 @@
 import { LispExpression } from "../ast.ts";
 import { swc } from "../deps.ts";
 import { Module } from "../js-ast/swc.ts";
-import { compileStatement } from "./compileStatement.ts";
-import { invariant } from "../syntaxInvariant.ts";
-import { OUT_ENTRYPOINT_PATH, SPAN } from "./constants.ts";
 import { Scope } from "../Scope.ts";
+import { invariant } from "../syntaxInvariant.ts";
+import { compileStatement } from "./compileStatement.ts";
+import { OUT_ENTRYPOINT_PATH, SPAN } from "./constants.ts";
+import { injectDefaultExportMain } from "./injectDefaultExportMain.ts";
 import { STD } from "./std-code.ts";
 import { IBundleFile, ICompilerState } from "./types.ts";
-import { injectDefaultExportMain } from "./injectDefaultExportMain.ts";
 
-export function* compile(
+export async function compile(
   expression$: Iterable<LispExpression>,
-): Generator<IBundleFile, void, unknown> {
-  const fullStdLibAst = swc.parse(STD, { syntax: "ecmascript" }) as Module;
+): Promise<IBundleFile[]> {
+  const fullStdLibAst = await swc.parse(STD, {
+    syntax: "ecmascript",
+  }) as Module;
 
   const state: ICompilerState = {
     files: {
@@ -59,8 +61,8 @@ export function* compile(
     invariant(false, "Unsupported expression", expr);
   }
 
-  yield {
+  return [{
     relativePath: "index.js",
     ast: state.files[OUT_ENTRYPOINT_PATH].ast,
-  };
+  }];
 }

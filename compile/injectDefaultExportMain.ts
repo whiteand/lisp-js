@@ -1,9 +1,12 @@
+import { assert } from "../assert.ts";
+import { getNodeByType } from "../js-ast/traverse.ts";
 import { DEFAULT_FUNCTION_NAME, SPAN } from "./constants.ts";
 import { ICompilerState } from "./types.ts";
-import { getNodeByType } from "../js-ast/traverse.ts";
-import { assert } from "../assert.ts";
 
-export function injectDefaultExportMain(state: ICompilerState, filePath: string): void {
+export function injectDefaultExportMain(
+  state: ICompilerState,
+  filePath: string,
+): void {
   const file = state.files[filePath];
   const module = file.ast;
   const scope = file.scope;

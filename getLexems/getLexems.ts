@@ -1,6 +1,7 @@
 import { IBackableIterator } from "../IBackableIterator.ts";
-import { ILocatedLexem } from "../ILocatedLexem.ts";
 import { ILocatedChar } from "../ILocatedChar.ts";
+import { ILocatedLexem } from "../ILocatedLexem.ts";
+import { ILocation } from "../ILocation.ts";
 import { LexicalError } from "./LexicalError.ts";
 import { makeLexem } from "./makeLexem.ts";
 import { parseNumber } from "./parseNumber.ts";
@@ -8,10 +9,8 @@ import {
   isDigit,
   isIdCharacter,
   isIdStartCharacter,
-  isReplacableBySpace,
-  isSpace,
+  isReplacableBySpace
 } from "./utils.ts";
-import { ILocation } from "../ILocation.ts";
 
 const INITIAL = 1;
 

@@ -113,6 +113,7 @@ export interface ExpressionStatement extends Node {
   expression: Expression;
 }
 
+// deno-lint-ignore no-empty-interface
 interface ExpressionBase extends Node {
 }
 

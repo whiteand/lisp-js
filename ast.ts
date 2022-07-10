@@ -30,8 +30,8 @@ export interface ISymbol extends ILocationRange {
 }
 export interface IString extends ILocationRange {
   nodeType: "String";
-  value: string
-  hasEscape: boolean
+  value: string;
+  hasEscape: boolean;
 }
 export interface INumber extends ILocationRange {
   nodeType: "Number";

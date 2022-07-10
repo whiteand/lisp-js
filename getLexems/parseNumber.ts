@@ -1,6 +1,6 @@
 import { IBackableIterator } from "../IBackableIterator.ts";
-import { ILocatedLexem } from "../ILocatedLexem.ts";
 import { ILocatedChar } from "../ILocatedChar.ts";
+import { ILocatedLexem } from "../ILocatedLexem.ts";
 import { makeLexem } from "./makeLexem.ts";
 import { isDigit } from "./utils.ts";
 

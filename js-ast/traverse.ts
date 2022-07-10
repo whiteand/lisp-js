@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any
 import { TNode } from "./swc.ts";
 
 export function getNodeByType<T extends TNode["type"]>(
@@ -24,7 +25,7 @@ export function forEachNode(
   rootNode: TNode,
   cb: (node: TNode) => true | void,
 ): void {
-  let nodes: TNode[] = [rootNode];
+  const nodes: TNode[] = [rootNode];
   while (nodes.length > 0) {
     const node = nodes.pop()!;
     const shouldStop = cb(node);
@@ -122,7 +123,7 @@ export function forEachNode(
       nodes.push(node.body);
       nodes.push(...node.params);
       nodes.push(node.identifier);
-      continue
+      continue;
     }
     if (node.type === "ThrowStatement") {
       nodes.push(node.argument);

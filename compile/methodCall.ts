@@ -3,8 +3,8 @@ import { Expression } from "../js-ast/swc.ts";
 import { invariant } from "../syntaxInvariant.ts";
 import { SPAN } from "./constants.ts";
 import { getMethodNameFromMemberSymbol } from "./getMethodNameFromMemberSymbol.ts";
-import { ICompilerState } from "./types.ts";
 import { lispExpressionToJsExpression } from "./lispExpressionToJsExpression.ts";
+import { ICompilerState } from "./types.ts";
 
 export function methodCall(state: ICompilerState, expr: IList): Expression {
   invariant(

@@ -1,15 +1,15 @@
-import { Program } from "./swc.ts";
 import { swc } from "../deps.ts";
+import { Program } from "./swc.ts";
 
 /**
  * @param ast
  * @returns
  */
-export function renderNode(
+export async function renderNode(
   ast: Program,
 ): Promise<string> {
-  const res = swc.print(ast, {
+  const res = await swc.print(ast, {
     minify: false,
   });
-  return Promise.resolve(res.code || "")
+  return res.code || ''
 }

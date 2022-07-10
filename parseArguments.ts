@@ -8,7 +8,7 @@ export async function parseArguments(): Promise<
     logHelp();
     Deno.exit(6);
   }
-  let args: ICompilerArgs = {
+  const args: ICompilerArgs = {
     command,
     entrypointFilePath: "",
     colors: false,
