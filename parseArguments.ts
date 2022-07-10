@@ -53,16 +53,17 @@ function fileExists(filePath: string): Promise<boolean> {
 
 function logHelp() {
   console.log(`
-  Usage:
-    ljs run [entrypoint.ljs]
-    ljs compile [entrypoint.ljs]
-  options:
-    --colors
-        Enables colors in the output (default: false).
-        Applicable only for "run" command
-
-    --showStack 
-        Shows stack trace of lexical and syntax errors
-        For now applicable only for "compile" command
-  `);
+USAGE:
+  ljs run [OPTIONS] [entrypoint.ljs]
+  ljs compile [OPTIONS] [entrypoint.ljs]
+OPTIONS:
+  --colors
+      Enables colors in the output (default: false).
+  --showStack 
+      Shows stack trace of lexical and syntax errors
+  --measure-performance
+      Shows how long it takes for each step of the execution
+  --help
+      Renders this help message
+  `.trim());
 }

@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "build": "deno compile --unstable --allow-net --allow-write --allow-read ljs.ts",
+    "build": "deno compile --allow-net --allow-write --allow-read ljs.ts",
     "dev": "npx nodemon --ext .ts,.ljs --exec \"deno task build && ljs run --colors --measure-performance --show-stack example.ljs\"",
     "dev:compile": "npx nodemon --ext .ts,.ljs --exec \"deno task build && ljs compile --measure-performance --colors --show-stack example.ljs\""
   }
