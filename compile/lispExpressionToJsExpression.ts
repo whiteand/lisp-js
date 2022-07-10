@@ -65,5 +65,22 @@ export function lispExpressionToJsExpression(
       span: SPAN,
     };
   }
+  if (expr.nodeType === "Symbol") {
+    const definition = state.indexJs.scope.getDefinition(expr.name);
+    invariant(definition, "undefined symbol", expr);
+    if (definition.definitionType === "Const") {
+      return {
+        type: "Identifier",
+        optional: false,
+        span: SPAN,
+        value: expr.name,
+      }
+    }
+    invariant(
+      false,
+      `cannot read value defined here: ${JSON.stringify(definition)}`,
+      expr,
+    );
+  }
   invariant(false, "cannot compile to js", expr);
 }

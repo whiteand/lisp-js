@@ -40,7 +40,7 @@ export function binaryOperatorFunctionCallToJsExpression(
   if (expr.elements.length === 1) {
     const defaultValue = DEFAULT_BINARY_OPERATOR_VALUE.get(operator);
     invariant(
-      defaultValue,
+      defaultValue != null,
       "this operator should have at least one argument",
       expr,
     );

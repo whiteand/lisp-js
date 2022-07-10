@@ -1,8 +1,7 @@
 import { LispExpression } from "../ast.ts";
 import { swc } from "../deps.ts";
 import { Module } from "../js-ast/swc.ts";
-import { LispSyntaxError } from "../LispSyntaxError.ts";
-import { compileGlobalFunctionCall } from "./compileGlobalFunctionCall.ts";
+import { compileStatement } from "./compileStatement.ts";
 import { invariant } from "../syntaxInvariant.ts";
 import { SPAN, STD_LIB_FILE } from "./constants.ts";
 import { Scope } from "../Scope.ts";
@@ -58,7 +57,7 @@ export function* compile(
       expr,
     );
     if (expr.nodeType === "List") {
-      compileGlobalFunctionCall(state, expr);
+      compileStatement(state, expr);
       continue;
     }
     invariant(false, "Unsupported expression", expr);

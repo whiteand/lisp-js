@@ -12,7 +12,7 @@ function isControlFlowOperator(_: ISymbol) {
   return false;
 }
 
-export function compileGlobalFunctionCall(
+export function compileStatement(
   state: ICompilerState,
   expr: IList,
 ): void {
@@ -21,6 +21,42 @@ export function compileGlobalFunctionCall(
   const func = elements[0];
   if (func.nodeType === "Symbol") {
     if (isScopeOperatorName(func.name)) {
+      if (func.name === "const") {
+        // (const [symbol] [value])
+        invariant(elements.length === 3, "const takes two arguments", expr);
+        const symbol = elements[1];
+        invariant(symbol.nodeType === "Symbol", "symbol expected", symbol);
+        const value = elements[2];
+        const jsValue = lispExpressionToJsExpression(state, value);
+        const constStatement: Statement = {
+          type: "VariableDeclaration",
+          span: SPAN,
+          kind: "const",
+          declare: false,
+          declarations: [
+            {
+              definite: false,
+              id: {
+                type: "Identifier",
+                span: SPAN,
+                optional: false,
+                value: symbol.name,
+              },
+              type: "VariableDeclarator",
+              span: SPAN,
+              init: jsValue,
+            },
+          ],
+        };
+        state.indexJs.scope.define(symbol.name, {
+          definitionType: "Const",
+          declaration: expr,
+          value,
+        }, expr);
+        appendStatement(state.indexJs.ast, constStatement);
+
+        return;
+      }
       invariant(false, "Scope operators not supported yet", func);
     }
     if (isControlFlowOperator(func)) {
