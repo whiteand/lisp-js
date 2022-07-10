@@ -1,5 +1,5 @@
 import { assert } from "../assert.ts";
-import { IFunctionCall, ISymbol, LispExpression } from "../ast.ts";
+import { IList, ISymbol, LispExpression } from "../ast.ts";
 import { colors } from "../deps.ts";
 import {
   Argument,
@@ -10,6 +10,7 @@ import {
   Statement,
 } from "../js-ast/swc.ts";
 import { getNodeByType, querySelector } from "../js-ast/traverse.ts";
+import { LispSyntaxError } from "../LispSyntaxError.ts";
 import { renderColoredExpression } from "../renderColoredExpression.ts";
 import { renderLocationRange } from "../renderLocationRange.ts";
 
@@ -64,14 +65,13 @@ export function* compile(
     if (expr.nodeType === "Number") continue;
     if (expr.nodeType === "Symbol") continue;
     if (expr.nodeType === "Vector") continue;
-    if (expr.nodeType === "FunctionCall") {
+    if (expr.nodeType === "List") {
       handleGlobalFunctionCall(state, expr);
       continue;
     }
-    throw new Error(
-      `${
-        colors.gray(renderLocationRange((expr as any).start, (expr as any).end))
-      } :: Cannot transform ${renderColoredExpression(expr)}`,
+    throw LispSyntaxError.fromExpression(
+      "Unknown expression",
+      expr,
     );
   }
 
@@ -99,9 +99,13 @@ interface ICompilerState {
 
 function handleGlobalFunctionCall(
   state: ICompilerState,
-  expr: IFunctionCall,
+  expr: IList,
 ) {
-  const { function: func, start, end } = expr;
+  const { elements } = expr;
+  if (elements.length <= 0) {
+    throw LispSyntaxError.fromExpression("empty lists are not supported", expr);
+  }
+  const func = elements[0];
   if (func.nodeType === "Symbol") {
     ensureFunctionNameIsAvailable(state, func);
     const jsExpression = lispExpressionToJsExpression(state, expr);
@@ -113,11 +117,7 @@ function handleGlobalFunctionCall(
     appendStatement(state.indexJs.ast, expressionStatement);
     return;
   }
-  throw new Error(
-    `${colors.gray(renderLocationRange(start, end))} :: Cannot transform ${
-      renderColoredExpression(expr)
-    } to js`,
-  );
+  throw LispSyntaxError.fromExpression(`cannot transform`, expr);
 }
 
 function ensureFunctionNameIsAvailable(
@@ -129,10 +129,9 @@ function ensureFunctionNameIsAvailable(
     ensureStdLibFunctionImported(state, funcExpr);
     return;
   }
-  throw new Error(
-    `${
-      colors.gray(renderLocationRange(funcExpr.start, funcExpr.end))
-    } :: Cannot ensure ${renderColoredExpression(funcExpr)} is defined`,
+  throw LispSyntaxError.fromExpression(
+    "cannot ensure function is defined",
+    funcExpr,
   );
 }
 
@@ -154,32 +153,32 @@ function ensureStdLibFunctionImported(
 
 function binaryOperatorFunctionCallToJsExpression(
   state: ICompilerState,
-  expr: IFunctionCall,
+  expr: IList,
 ): Expression {
-  assert(expr.function.nodeType === "Symbol", "impossible state");
-  const operator = expr.function.name as "+" | "*";
+  assert(expr.elements[0].nodeType === "Symbol", "impossible state");
+  const operator = expr.elements[0].name as "+" | "*";
   if (operator === "+") {
-    if (expr.arguments.length <= 0) {
+    if (expr.elements.length <= 1) {
       return {
         type: "NumericLiteral",
         span: SPAN,
         value: 0,
       };
     }
-    if (expr.arguments.length === 1) {
-      return lispExpressionToJsExpression(state, expr.arguments[0]);
+    if (expr.elements.length === 2) {
+      return lispExpressionToJsExpression(state, expr.elements[1]);
     }
   }
   if (operator === "*") {
-    if (expr.arguments.length <= 0) {
+    if (expr.elements.length <= 1) {
       return {
         type: "NumericLiteral",
         span: SPAN,
         value: 1,
       };
     }
-    if (expr.arguments.length === 1) {
-      return lispExpressionToJsExpression(state, expr.arguments[0]);
+    if (expr.elements.length === 2) {
+      return lispExpressionToJsExpression(state, expr.elements[1]);
     }
   }
   const root: Expression = {
@@ -199,9 +198,9 @@ function binaryOperatorFunctionCallToJsExpression(
   };
   let res = root;
 
-  let i = expr.arguments.length - 1;
-  while (i >= 2) {
-    const arg = expr.arguments[i];
+  let i = expr.elements.length - 1;
+  while (i >= 3) {
+    const arg = expr.elements[i];
     i--;
     const jsExpr = lispExpressionToJsExpression(state, arg);
     res.right = jsExpr;
@@ -222,8 +221,8 @@ function binaryOperatorFunctionCallToJsExpression(
     };
     res = res.left;
   }
-  res.left = lispExpressionToJsExpression(state, expr.arguments[0]);
-  res.right = lispExpressionToJsExpression(state, expr.arguments[1]);
+  res.left = lispExpressionToJsExpression(state, expr.elements[1]);
+  res.right = lispExpressionToJsExpression(state, expr.elements[2]);
 
   return root;
 }
@@ -236,9 +235,16 @@ function lispExpressionToJsExpression(
   state: ICompilerState,
   expr: LispExpression,
 ): Expression {
-  if (expr.nodeType === "FunctionCall") {
-    if (expr.function.nodeType === "Symbol") {
-      const functionName = expr.function.name;
+  if (expr.nodeType === "List") {
+    if (expr.elements.length <= 0) {
+      throw LispSyntaxError.fromExpression(
+        "empty lists are not supported yet",
+        expr,
+      );
+    }
+    const funcExpression = expr.elements[0];
+    if (funcExpression.nodeType === "Symbol") {
+      const functionName = funcExpression.name;
       if (isBinaryOperator(functionName)) {
         return binaryOperatorFunctionCallToJsExpression(state, expr);
       }
@@ -248,9 +254,9 @@ function lispExpressionToJsExpression(
           type: "Identifier",
           optional: false,
           span: SPAN,
-          value: expr.function.name,
+          value: funcExpression.name,
         },
-        arguments: expr.arguments.map((arg): Argument => ({
+        arguments: expr.elements.slice(1).map((arg): Argument => ({
           expression: lispExpressionToJsExpression(state, arg),
         })),
         span: SPAN,

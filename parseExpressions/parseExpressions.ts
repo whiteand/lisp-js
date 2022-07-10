@@ -1,14 +1,14 @@
 import { assert } from "../assert.ts";
 import { LispExpression } from "../ast.ts";
+import { createBackableIterator } from "../createBackableIterator.ts";
 import { ILocatedLexem } from "../ILocatedLexem.ts";
+import { LispSyntaxError } from "../LispSyntaxError.ts";
 import { renderLexem } from "../renderLexem.ts";
 import { TLexem } from "../TLexem.ts";
-import { createBackableIterator } from "../createBackableIterator.ts";
-import { TParseStackItem } from "./TParseStackItem.ts";
-import { LispSyntaxError } from "./LispSyntaxError.ts";
 import { logSyntaxAnalyzerState } from "./logSyntaxAnalyzerState.ts";
-import { TParseTask } from "./TParseTask.ts";
 import { makeTask } from "./makeTask.ts";
+import { TParseStackItem } from "./TParseStackItem.ts";
+import { TParseTask } from "./TParseTask.ts";
 
 export function* parseExpressions(
   locatedLexemsIterator: Iterator<ILocatedLexem>,
@@ -92,7 +92,7 @@ export function* parseExpressions(
 
       if (lexem === "(") {
         tasks.push(
-          makeTask("create_function_call_expression"),
+          makeTask("create_list_expression"),
           makeTask("parse_close_parens_and_push_location"),
           makeTask("parse_expressions_list"),
           {
@@ -234,7 +234,7 @@ export function* parseExpressions(
       });
       continue nextTask;
     }
-    if (task.type === "create_function_call_expression") {
+    if (task.type === "create_list_expression") {
       const closeParensLocation = stack.pop();
       invariant(
         closeParensLocation,
@@ -254,9 +254,8 @@ export function* parseExpressions(
         "expected expression list on the stack",
       );
       const functionCallExpression: LispExpression = {
-        nodeType: "FunctionCall",
-        function: expressionListItem.expressionList[0],
-        arguments: expressionListItem.expressionList.slice(1),
+        nodeType: "List",
+        elements: expressionListItem.expressionList,
         start: expressionListItem.start,
         end: closeParensLocation.location,
       };

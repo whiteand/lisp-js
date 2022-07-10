@@ -17,7 +17,7 @@ export type TParseTask =
     type: "parse_function_params";
   }
   | {
-    type: "create_function_call_expression";
+    type: "create_list_expression";
   }
   | { type: "parse_expressions_list" }
   | { type: "push_expression_list_array"; start: ILocation }

@@ -2,7 +2,7 @@ import { ILocationRange } from "./ILocationRange.ts";
 
 export type LispProgram = LispExpression[];
 export type LispExpression =
-  | IFunctionCall
+  | IList
   | ISymbol
   | IBigIntNumber
   | INumber
@@ -13,10 +13,9 @@ export interface IVectorExpression extends ILocationRange {
   elements: LispExpression[];
 }
 
-export interface IFunctionCall extends ILocationRange {
-  nodeType: "FunctionCall";
-  function: LispExpression;
-  arguments: LispExpression[];
+export interface IList extends ILocationRange {
+  nodeType: "List";
+  elements: LispExpression[]
 }
 export interface ISymbol extends ILocationRange {
   nodeType: "Symbol";

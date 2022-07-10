@@ -6,7 +6,7 @@ import { parseArguments } from "./parseArguments.ts";
 import { parseExpressions } from "./parseExpressions/parseExpressions.ts";
 import { renderNode } from "./js-ast/renderNode.ts";
 import { LexicalError } from "./getLexems/LexicalError.ts";
-import { LispSyntaxError } from "./parseExpressions/LispSyntaxError.ts";
+import { LispSyntaxError } from "./LispSyntaxError.ts";
 
 const { entryPointFilePath } = await parseArguments();
 

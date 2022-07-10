@@ -6,9 +6,9 @@ export function renderColoredExpression(expr: LispExpression): string {
     return `${colors.brightGreen(expr.value.toString())}`;
   }
 
-  if (expr.nodeType === "FunctionCall") {
-    return `${colors.yellow("(")}${renderColoredExpression(expr.function)} ${
-      expr.arguments.map(renderColoredExpression).join(" ")
+  if (expr.nodeType === "List") {
+    return `${colors.yellow("(")}${
+      expr.elements.map(renderColoredExpression).join(" ")
     }${
       colors.yellow(
         ")",
