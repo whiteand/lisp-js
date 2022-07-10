@@ -47,8 +47,11 @@ export function* getLexems(
     if (state === INITIAL) {
       if (char === "/") {
         const nextLocatedCharEntry = input.next();
+        if (nextLocatedCharEntry.done) {
+          throw new LexicalError("unexpected end of input", locatedChar);
+        }
         if (
-          !nextLocatedCharEntry.done && nextLocatedCharEntry.value.char === "/"
+          nextLocatedCharEntry.value.char === "/"
         ) {
           const { comment, end } = getRawSourceCodeTillTheEndOfALine(input);
           yield makeLexem(
@@ -59,20 +62,26 @@ export function* getLexems(
             locatedChar,
             end || nextLocatedCharEntry.value,
           );
-        } else {
-          input.back();
+          continue nextChar
         }
-        continue nextChar
+        input.back()
       }
       if (char === "\n") {
+        const nextCharEntry = input.next();
+        let end = locatedChar
+        if (nextCharEntry.done || nextCharEntry.value.char !== "\r") {
+          input.back();
+        } else {
+          end = nextCharEntry.value;
+        }
         yield makeLexem(
           {
             type: "newline",
           },
           locatedChar,
-          locatedChar,
+          end,
         );
-        continue nextChar
+        continue nextChar;
       }
       if (isSpace(char)) {
         while (true) {

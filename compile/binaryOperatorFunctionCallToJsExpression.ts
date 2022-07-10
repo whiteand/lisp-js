@@ -4,37 +4,54 @@ import { Expression } from "../js-ast/swc.ts";
 import { lispExpressionToJsExpression } from "./lispExpressionToJsExpression.ts";
 import { ICompilerState } from "./types.ts";
 import { SPAN } from "./constants.ts";
+import { LispSyntaxError } from "../LispSyntaxError.ts";
+import { isBinaryOperator } from "./isBinaryOperator.ts";
+
+const DEFAULT_BINARY_OPERATOR_VALUE = new Map<string, number>();
+DEFAULT_BINARY_OPERATOR_VALUE.set("+", 0);
+DEFAULT_BINARY_OPERATOR_VALUE.set("-", 0);
+DEFAULT_BINARY_OPERATOR_VALUE.set("*", 0);
+DEFAULT_BINARY_OPERATOR_VALUE.set("/", 1);
 
 export function binaryOperatorFunctionCallToJsExpression(
   state: ICompilerState,
   expr: IList,
 ): Expression {
   assert(expr.elements[0].nodeType === "Symbol", "impossible state");
-  const operator = expr.elements[0].name as "+" | "*";
-  if (operator === "+") {
-    if (expr.elements.length <= 1) {
+  const operator = expr.elements[0].name;
+  assert(isBinaryOperator(operator), "impossible state");
+  if (expr.elements.length === 2) {
+    if (operator === "/") {
       return {
-        type: "NumericLiteral",
+        type: "BinaryExpression",
+        operator: `/`,
+        left: {
+          type: "NumericLiteral",
+          span: SPAN,
+          value: 1,
+        },
+        right: lispExpressionToJsExpression(state, expr.elements[1]),
         span: SPAN,
-        value: 0,
       };
     }
-    if (expr.elements.length === 2) {
-      return lispExpressionToJsExpression(state, expr.elements[1]);
-    }
+    // There is only one argument
+    return lispExpressionToJsExpression(state, expr.elements[1]);
   }
-  if (operator === "*") {
-    if (expr.elements.length <= 1) {
-      return {
-        type: "NumericLiteral",
-        span: SPAN,
-        value: 1,
-      };
+  if (expr.elements.length === 1) {
+    const defaultValue = DEFAULT_BINARY_OPERATOR_VALUE.get(operator);
+    if (defaultValue === undefined) {
+      throw LispSyntaxError.fromExpression(
+        "this operator has no default value",
+        expr,
+      );
     }
-    if (expr.elements.length === 2) {
-      return lispExpressionToJsExpression(state, expr.elements[1]);
-    }
+    return {
+      type: "NumericLiteral",
+      span: SPAN,
+      value: defaultValue,
+    };
   }
+
   const root: Expression = {
     type: "BinaryExpression",
     span: SPAN,

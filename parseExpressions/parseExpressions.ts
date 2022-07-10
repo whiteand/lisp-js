@@ -21,14 +21,18 @@ export function* parseExpressions(
   function invariant<T>(
     expr: T,
     message: string,
-    options?: { logDiagnostics?: boolean },
+    state?: {
+      stack: TParseStackItem[];
+      tasks: TParseTask[];
+      entries: IteratorYieldResult<ILocatedLexem>[];
+    },
   ): asserts expr {
     if (expr) return;
-    if (options?.logDiagnostics) {
+    if (state) {
       logSyntaxAnalyzerState(
-        stack,
-        task ? [...tasks, task] : tasks,
-        locatedLexem$.getEntries(),
+        state.stack,
+        state.tasks,
+        state.entries,
       );
     }
     throw LispSyntaxError.fromLocatedLexem(
@@ -273,14 +277,10 @@ export function* parseExpressions(
       continue;
     }
 
-    logSyntaxAnalyzerState(
-      stack,
-      [...tasks, task],
-      locatedLexem$.getEntries(),
-    );
-
     invariant(false, `Syntax Parser failed executing ${task.type}`, {
-      logDiagnostics: true,
+      stack,
+      tasks: [...tasks, task],
+      entries: locatedLexem$.getEntries(),
     });
   }
 }

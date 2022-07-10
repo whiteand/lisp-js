@@ -1,7 +1,6 @@
 import { LispExpression } from "../ast.ts";
 import { Argument, Expression } from "../js-ast/swc.ts";
 import { LispSyntaxError } from "../LispSyntaxError.ts";
-import { renderColoredExpression } from "../renderColoredExpression.ts";
 import { binaryOperatorFunctionCallToJsExpression } from "./binaryOperatorFunctionCallToJsExpression.ts";
 import { SPAN } from "./constants.ts";
 import { isBinaryOperator } from "./isBinaryOperator.ts";
