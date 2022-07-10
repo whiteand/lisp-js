@@ -4,7 +4,7 @@ import { Module } from "../js-ast/swc.ts";
 import { LispSyntaxError } from "../LispSyntaxError.ts";
 import { compileGlobalFunctionCall } from "./compileGlobalFunctionCall.ts";
 import { SPAN, STD_LIB_FILE } from "./constants.ts";
-import { Scope } from "./Scope.ts";
+import { Scope } from "../Scope.ts";
 import { STD } from "./std-code.ts";
 import { IBundleFile, ICompilerState } from "./types.ts";
 

@@ -16,14 +16,19 @@ export class LispSyntaxError extends Error implements ILocationRange {
     start: ILocation,
     end = start,
   ) {
-    super(`${renderLocationRange(start, end)} :: SyntaxError: ${innerMessage}`);
+    super(
+      `${renderLocationRange(start, end)} :: LispSyntaxError: ${innerMessage}`,
+    );
     this.start = start;
     this.end = end;
     this.innerMessage = innerMessage;
   }
-  static fromLocatedLexem(message: string, lexem: ILocatedLexem): SyntaxError {
+  static fromLocatedLexem(
+    message: string,
+    lexem: ILocatedLexem,
+  ): LispSyntaxError {
     return new LispSyntaxError(
-      `${message}. Lexem: "${renderLexem(lexem.lexem)}"`,
+      `Lexem:\n\t"${renderLexem(lexem.lexem)}"\n${message}.`,
       lexem.start,
       lexem.end,
     );
@@ -31,9 +36,11 @@ export class LispSyntaxError extends Error implements ILocationRange {
   static fromExpression(
     message: string,
     expression: LispExpression,
-  ): SyntaxError {
+  ): LispSyntaxError {
     return new LispSyntaxError(
-      `${message}. Expression: ${renderColoredExpression(expression)}`,
+      `Expression:\n\t${renderColoredExpression(expression)}\n${
+        colors.red("SyntaxError:")
+      }\n\t${message}`,
       expression.start,
       expression.end,
     );
@@ -41,14 +48,14 @@ export class LispSyntaxError extends Error implements ILocationRange {
   static fromLocationRange(
     message: string,
     range: ILocationRange,
-  ): SyntaxError {
+  ): LispSyntaxError {
     return new LispSyntaxError(message, range.start, range.end);
   }
   log(): void {
     console.error(
-      `${colors.gray(renderLocationRange(this.start, this.end))} :: ${
-        colors.red("SyntaxError")
-      }: ${this.innerMessage}`,
+      `${this.innerMessage}\nat:\n\t${
+        colors.gray(renderLocationRange(this.start, this.end))
+      }`,
     );
   }
 }

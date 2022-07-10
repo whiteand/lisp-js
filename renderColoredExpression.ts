@@ -15,6 +15,9 @@ export function renderColoredExpression(expr: LispExpression): string {
       )
     }`;
   }
+  if (expr.nodeType === 'Void') {
+    return colors.gray('void')
+  }
   if (expr.nodeType === "Symbol") {
     return `${colors.cyan(expr.name)}`;
   }

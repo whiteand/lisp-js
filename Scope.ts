@@ -1,4 +1,4 @@
-import { LispExpression } from "../ast.ts";
+import { LispExpression } from "./ast.ts";
 
 export interface ITree<T> {
   readonly parent: T | null;

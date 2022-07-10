@@ -6,7 +6,12 @@ export type LispExpression =
   | ISymbol
   | IBigIntNumber
   | INumber
-  | IVectorExpression;
+  | IVectorExpression
+  | IVoidExpression;
+
+export interface IVoidExpression extends ILocationRange {
+  nodeType: "Void";
+}
 
 export interface IVectorExpression extends ILocationRange {
   nodeType: "Vector";
@@ -15,7 +20,7 @@ export interface IVectorExpression extends ILocationRange {
 
 export interface IList extends ILocationRange {
   nodeType: "List";
-  elements: LispExpression[]
+  elements: LispExpression[];
 }
 export interface ISymbol extends ILocationRange {
   nodeType: "Symbol";

@@ -1,5 +1,5 @@
 import { Module } from "../js-ast/swc.ts";
-import { IScope } from "./Scope.ts";
+import { IScope } from "../Scope.ts";
 
 export type StdLibFunctionName = "log";
 
