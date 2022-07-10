@@ -10,8 +10,28 @@ import {
   isIdStartCharacter,
   isSpace,
 } from "./utils.ts";
+import { ILocation } from "../ILocation.ts";
 
 const INITIAL = 1;
+
+function getRawSourceCodeTillTheEndOfALine(
+  input: IBackableIterator<ILocatedChar>,
+): { comment: string; end: ILocation | null } {
+  let result = "";
+  let lastLocation: ILocation | null = null;
+  while (true) {
+    const charEntry = input.next();
+    if (charEntry.done) {
+      return { comment: result.trim(), end: lastLocation };
+    }
+    if (charEntry.value.char === "\n") {
+      input.back();
+      return { comment: result.trim(), end: lastLocation };
+    }
+    lastLocation = charEntry.value;
+    result += charEntry.value.char;
+  }
+}
 
 export function* getLexems(
   input: IBackableIterator<ILocatedChar>,
@@ -25,6 +45,35 @@ export function* getLexems(
     const char = locatedChar.char;
 
     if (state === INITIAL) {
+      if (char === "/") {
+        const nextLocatedCharEntry = input.next();
+        if (
+          !nextLocatedCharEntry.done && nextLocatedCharEntry.value.char === "/"
+        ) {
+          const { comment, end } = getRawSourceCodeTillTheEndOfALine(input);
+          yield makeLexem(
+            {
+              type: "comment",
+              value: comment,
+            },
+            locatedChar,
+            end || nextLocatedCharEntry.value,
+          );
+        } else {
+          input.back();
+        }
+        continue nextChar
+      }
+      if (char === "\n") {
+        yield makeLexem(
+          {
+            type: "newline",
+          },
+          locatedChar,
+          locatedChar,
+        );
+        continue nextChar
+      }
       if (isSpace(char)) {
         while (true) {
           const nextEntry = input.next();

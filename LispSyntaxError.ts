@@ -5,6 +5,7 @@ import { ILocatedLexem } from "./ILocatedLexem.ts";
 import { ILocationRange } from "./ILocationRange.ts";
 import { renderColoredExpression } from "./renderColoredExpression.ts";
 import { LispExpression } from "./ast.ts";
+import { renderLexem } from "./renderLexem.ts";
 
 export class LispSyntaxError extends Error implements ILocationRange {
   public start: ILocation;
@@ -21,7 +22,11 @@ export class LispSyntaxError extends Error implements ILocationRange {
     this.innerMessage = innerMessage;
   }
   static fromLocatedLexem(message: string, lexem: ILocatedLexem): SyntaxError {
-    return new LispSyntaxError(message, lexem.start, lexem.end);
+    return new LispSyntaxError(
+      `${message}. Lexem: "${renderLexem(lexem.lexem)}"`,
+      lexem.start,
+      lexem.end,
+    );
   }
   static fromExpression(
     message: string,

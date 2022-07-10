@@ -3,11 +3,12 @@ import { renderLocation } from "../renderLocation.ts";
 import { TParseTask } from "./TParseTask.ts";
 
 const ONLY_TYPE_TASK_TYPES = [
+  "parse_program",
   "parse_expression",
   "yield_expression",
   "parse_function_expression",
   "parse_function_params",
-  "create_function_call_expression",
+  "create_list_expression",
   "parse_expressions_list",
   "append_to_expression_list",
   'parse_close_parens_and_push_location'

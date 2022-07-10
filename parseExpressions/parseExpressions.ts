@@ -13,7 +13,9 @@ import { TParseTask } from "./TParseTask.ts";
 export function* parseExpressions(
   locatedLexemsIterator: Iterator<ILocatedLexem>,
 ): Generator<LispExpression, void, unknown> {
-  const locatedLexem$ = createBackableIterator(locatedLexemsIterator);
+  const locatedLexem$ = createBackableIterator(
+    locatedLexemsIterator,
+  );
   let task: TParseTask | undefined;
 
   function invariant<T>(
@@ -155,12 +157,17 @@ export function* parseExpressions(
         });
         continue nextTask;
       }
+      if (lexem.type === "comment" || lexem.type === "newline") {
+        tasks.push(task);
+        continue nextTask;
+      }
 
-      invariant(
-        false,
-        `unhandled lexem: ${renderLexem(lexem)}, expected "("` + lexem,
-        { logDiagnostics: true },
+      logSyntaxAnalyzerState(
+        stack,
+        [...tasks, task],
+        locatedLexem$.getEntries(),
       );
+      throw LispSyntaxError.fromLocatedLexem("unhandled lexem", locatedLexem);
     }
     if (task.type === "push_expression_list_array") {
       stack.push({

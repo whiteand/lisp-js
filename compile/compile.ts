@@ -2,6 +2,7 @@ import { LispExpression } from "../ast.ts";
 import { swc } from "../deps.ts";
 import { Module } from "../js-ast/swc.ts";
 import { LispSyntaxError } from "../LispSyntaxError.ts";
+import { renderColoredExpression } from "../renderColoredExpression.ts";
 import { compileGlobalFunctionCall } from "./compileGlobalFunctionCall.ts";
 import { FULL_STD_LIB_PATH, SPAN, STD_LIB_FILE } from "./constants.ts";
 import { IBundleFile, ICompilerState } from "./types.ts";
@@ -42,10 +43,18 @@ export function* compile(
   };
 
   for (const expr of expression$) {
-    if (expr.nodeType === "BigInt") continue;
-    if (expr.nodeType === "Number") continue;
-    if (expr.nodeType === "Symbol") continue;
-    if (expr.nodeType === "Vector") continue;
+    if (expr.nodeType === "BigInt") {
+      throw LispSyntaxError.fromExpression("Only functions can be globally used", expr)
+    }
+    if (expr.nodeType === "Number") {
+      throw LispSyntaxError.fromExpression("Only functions can be globally used", expr)
+    }
+    if (expr.nodeType === "Symbol") {
+      throw LispSyntaxError.fromExpression("Only functions can be globally used", expr)
+    }
+    if (expr.nodeType === "Vector") {
+      throw LispSyntaxError.fromExpression("Only functions can be globally used", expr)
+    }
     if (expr.nodeType === "List") {
       compileGlobalFunctionCall(state, expr);
       continue;
