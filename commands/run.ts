@@ -1,18 +1,16 @@
-import {
-  IList,
-  ISymbol,
-  IVectorExpression,
-  IVoidExpression,
-  LispExpression,
-} from "../ast.ts";
+import { IList, ISymbol, IVoidExpression, LispExpression } from "../ast.ts";
 import { isBinaryOperator } from "../compile/isBinaryOperator.ts";
 import { isStdLibFunction } from "../compile/isStdLibFunction.ts";
 import { StdLibFunctionName } from "../compile/types.ts";
 import { getLexems } from "../getLexems/getLexems.ts";
 import { getLocatedCharsIterator } from "../getLocatedCharsIterator.ts";
+import { ICompilerArgs } from "../ICompilerArgs.ts";
 import { LispSyntaxError } from "../LispSyntaxError.ts";
 import { parseExpressions } from "../parseExpressions/parseExpressions.ts";
-import { renderColoredExpression } from "../renderColoredExpression.ts";
+import {
+  renderColoredExpression,
+  renderExpression,
+} from "../renderExpression.ts";
 import { IScope, Scope } from "../Scope.ts";
 import { SourceLocation } from "../SourceLocation.ts";
 
@@ -20,21 +18,25 @@ interface IRunOptions {
   entrypointFilePath: string;
 }
 
-export async function run({ entrypointFilePath }: IRunOptions): Promise<void> {
-  const character$ = await getLocatedCharsIterator(entrypointFilePath);
+export async function run(compilerArgs: ICompilerArgs): Promise<void> {
+  const character$ = await getLocatedCharsIterator(
+    compilerArgs.entrypointFilePath,
+  );
 
   const lexem$ = getLexems(character$);
 
   const expression$ = parseExpressions(lexem$);
 
-  interpret(expression$);
+  interpret(compilerArgs, expression$);
 }
 
-function interpret(expression$: Iterable<LispExpression>) {
+function interpret(
+  compilerArgs: ICompilerArgs,
+  expression$: Iterable<LispExpression>,
+) {
   const scope = new Scope(null);
   for (const expression of expression$) {
-    const result = evaluate(scope, expression);
-    console.log(renderColoredExpression(result));
+    evaluate(compilerArgs, scope, expression);
   }
 }
 
@@ -49,7 +51,11 @@ function invariant<T>(
   }
 }
 
-function evaluate(scope: IScope, e: LispExpression): LispExpression {
+function evaluate(
+  compilerArgs: ICompilerArgs,
+  scope: IScope,
+  e: LispExpression,
+): LispExpression {
   if (e.nodeType === "BigInt" || e.nodeType === "Number") {
     return e;
   }
@@ -58,7 +64,9 @@ function evaluate(scope: IScope, e: LispExpression): LispExpression {
       nodeType: "Vector",
       start: e.start,
       end: e.end,
-      elements: e.elements.map((element) => evaluate(scope, element)),
+      elements: e.elements.map((element) =>
+        evaluate(compilerArgs, scope, element)
+      ),
     };
   }
   if (e.nodeType === "Symbol") {
@@ -82,7 +90,7 @@ function evaluate(scope: IScope, e: LispExpression): LispExpression {
     );
 
     if (definition.definitionType === "ExpressionDefinition") {
-      return evaluate(scope, definition.expression);
+      return evaluate(compilerArgs, scope, definition.expression);
     }
 
     invariant(false, "Unexpected definition type", e);
@@ -90,17 +98,18 @@ function evaluate(scope: IScope, e: LispExpression): LispExpression {
 
   if (e.nodeType === "List") {
     invariant(e.elements.length > 0, "Empty list cannot be executed", e);
-    const funcExpr = evaluate(scope, e.elements[0]);
+    const funcExpr = evaluate(compilerArgs, scope, e.elements[0]);
     if (funcExpr.nodeType === "Symbol") {
       if (isStdLibFunction(funcExpr.name)) {
         return stdLibFunctionCall(
+          compilerArgs,
           scope,
           funcExpr as ISymbol & { name: StdLibFunctionName },
           e.elements.slice(1),
         );
       }
       if (isBinaryOperator(funcExpr.name)) {
-        return evaluateBinaryOperator(scope, e);
+        return evaluateBinaryOperator(compilerArgs, scope, e);
       }
     }
     invariant(false, `cannot call`, e.elements[0]);
@@ -108,7 +117,11 @@ function evaluate(scope: IScope, e: LispExpression): LispExpression {
   invariant(false, `cannot evaluate`, e);
 }
 
-function evaluateBinaryOperator(scope: IScope, e: IList): LispExpression {
+function evaluateBinaryOperator(
+  compilerArgs: ICompilerArgs,
+  scope: IScope,
+  e: IList,
+): LispExpression {
   invariant(e.elements.length > 0, "operator expected", e);
   const operatorExpr = e.elements[0];
   invariant(
@@ -120,7 +133,7 @@ function evaluateBinaryOperator(scope: IScope, e: IList): LispExpression {
   if (operatorExpr.name === "+") {
     const sum = e.elements.slice(1).reduce(
       (acc: bigint | number, argExpr: LispExpression): number | bigint => {
-        const arg = evaluate(scope, argExpr);
+        const arg = evaluate(compilerArgs, scope, argExpr);
 
         if (arg.nodeType === "BigInt") {
           if (typeof acc === "bigint") {
@@ -162,7 +175,7 @@ function evaluateBinaryOperator(scope: IScope, e: IList): LispExpression {
   if (operatorExpr.name === "*") {
     const sum = e.elements.slice(1).reduce(
       (acc: bigint | number, argExpr: LispExpression): number | bigint => {
-        const arg = evaluate(scope, argExpr);
+        const arg = evaluate(compilerArgs, scope, argExpr);
 
         if (arg.nodeType === "BigInt") {
           if (typeof acc === "bigint") {
@@ -204,7 +217,7 @@ function evaluateBinaryOperator(scope: IScope, e: IList): LispExpression {
   if (operatorExpr.name === "-") {
     const sum = e.elements.slice(1).reduce(
       (acc: bigint | number, argExpr: LispExpression): number | bigint => {
-        const arg = evaluate(scope, argExpr);
+        const arg = evaluate(compilerArgs, scope, argExpr);
 
         if (arg.nodeType === "BigInt") {
           if (typeof acc === "bigint") {
@@ -246,7 +259,7 @@ function evaluateBinaryOperator(scope: IScope, e: IList): LispExpression {
   if (operatorExpr.name === "/") {
     const sum = e.elements.slice(1).reduce(
       (acc: bigint | number, argExpr: LispExpression): number | bigint => {
-        const arg = evaluate(scope, argExpr);
+        const arg = evaluate(compilerArgs, scope, argExpr);
 
         if (arg.nodeType === "BigInt") {
           if (typeof acc === "bigint") {
@@ -295,6 +308,7 @@ const VOID: IVoidExpression = {
 };
 
 function stdLibFunctionCall(
+  compilerArgs: ICompilerArgs,
   scope: IScope,
   func: ISymbol & { name: StdLibFunctionName },
   args: LispExpression[],
@@ -306,10 +320,14 @@ function stdLibFunctionCall(
     }
     const res: LispExpression[] = [];
     for (const arg of args) {
-      const evaluatedArg = evaluate(scope, arg);
+      const evaluatedArg = evaluate(compilerArgs, scope, arg);
       res.push(evaluatedArg);
     }
-    console.log(...res.map(renderColoredExpression));
+    console.log(
+      ...res.map(
+        compilerArgs.colors ? renderColoredExpression : renderExpression,
+      ),
+    );
     return VOID;
   }
   invariant(false, "Cannot execute std lib call", func);

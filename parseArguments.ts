@@ -1,23 +1,39 @@
+import { ICompilerArgs } from "./ICompilerArgs.ts";
+
 export async function parseArguments(): Promise<
-  { entrypointFilePath: string; command: "run" | "compile" }
+  ICompilerArgs
 > {
   const command = Deno.args[0];
   if (command !== "run" && command !== "compile") {
     logHelp();
-    Deno.exit(6)
+    Deno.exit(6);
   }
-  const entrypointFilePath = Deno.args[1];
-  if (typeof entrypointFilePath !== "string") {
-    console.error("entrypoint is not passed");
-    Deno.exit(4);
+  let args: ICompilerArgs = {
+    command,
+    entrypointFilePath: "",
+    colors: false,
+  };
+  for (const arg of Deno.args.slice(1)) {
+    if (arg === "--colors") {
+      args.colors = true;
+    }
+    args.entrypointFilePath = arg;
   }
-  try {
-    await Deno.stat(entrypointFilePath);
-    return { entrypointFilePath, command };
-  } catch (error) {
-    console.error(error);
-    Deno.exit(5);
+  if (!args.entrypointFilePath) {
+    console.log("entry point is not provided");
+    logHelp();
+    Deno.exit(7);
   }
+  const entrypointExists = await fileExists(args.entrypointFilePath);
+  if (!entrypointExists) {
+    console.log(`entry point file ${args.entrypointFilePath} does not exist`);
+    Deno.exit(8);
+  }
+  return args;
+}
+
+function fileExists(filePath: string): Promise<boolean> {
+  return Deno.stat(filePath).then(() => true, () => false);
 }
 
 function logHelp() {
@@ -25,5 +41,8 @@ function logHelp() {
   Usage:
     ljs run [entrypoint.ljs]
     ljs compile [entrypoint.ljs]
+  options:
+    --colors  enables colors in the output (default: false).
+              Applicable only for "run" command
   `);
 }

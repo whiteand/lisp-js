@@ -1,5 +1,5 @@
 import { colors } from "../deps.ts";
-import { renderColoredExpression } from "../renderColoredExpression.ts";
+import { renderColoredExpression } from "../renderExpression.ts";
 import { TParseStackItem } from "./TParseStackItem.ts";
 
 function renderColoredStackItem(stackItem: TParseStackItem): string {

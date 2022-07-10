@@ -3,7 +3,7 @@ import { renderLocationRange } from "./renderLocationRange.ts";
 import { colors } from "./deps.ts";
 import { ILocatedLexem } from "./ILocatedLexem.ts";
 import { ILocationRange } from "./ILocationRange.ts";
-import { renderColoredExpression } from "./renderColoredExpression.ts";
+import { renderColoredExpression } from "./renderExpression.ts";
 import { LispExpression } from "./ast.ts";
 import { renderLexem } from "./renderLexem.ts";
 
