@@ -27,17 +27,16 @@ export async function compile(
 
   const consoleColumns = Deno.consoleSize(Deno.stdout.rid).columns;
 
-  const colors = compilerArgs.colors ? actualColors : noColors;
-
   try {
     for (const file of bundleFile$) {
+      const colors = ColorsContext.getValue();
       console.log();
       console.log(colors.green("// " + ("-".repeat(consoleColumns - 3))));
       console.log(colors.green(`/** file: ${file.relativePath} */`));
       console.log(await renderNode(file.ast));
     }
   } catch (error) {
-    printCompilerError(compilerArgs, error, colors);
+    printCompilerError(compilerArgs, error);
   } finally {
     resetColorsContext();
   }

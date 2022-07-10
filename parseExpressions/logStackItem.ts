@@ -1,5 +1,5 @@
 import { ColorsContext } from "../contexts/colors.ts";
-import { renderColoredExpression } from "../renderExpression.ts";
+import { renderExpression } from "../renderExpression.ts";
 import { renderLocation } from "../renderLocation.ts";
 import { TParseStackItem } from "./TParseStackItem.ts";
 
@@ -7,12 +7,12 @@ function renderColoredStackItem(stackItem: TParseStackItem): string {
   const colors = ColorsContext.getValue();
   if (stackItem.stackType === "expression") {
     return `${colors.yellow("expression")}: ${
-      renderColoredExpression(stackItem.expression)
+      renderExpression(stackItem.expression)
     }`;
   }
   if (stackItem.stackType === "expression_list") {
     return `${colors.yellow("expression list")}: ${
-      renderColoredExpression({
+      renderExpression({
         nodeType: "Vector",
         elements: stackItem.expressionList,
         start: stackItem.start,

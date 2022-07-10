@@ -1,7 +1,8 @@
 import { LispExpression } from "./ast.ts";
+import { isSpecialSymbol } from "./compile/isSpecialSymbol.ts";
 import { ColorsContext } from "./contexts/colors.ts";
 
-export function renderColoredExpression(expr: LispExpression): string {
+export function renderExpression(expr: LispExpression): string {
   const colors = ColorsContext.getValue();
   if (expr.nodeType === "Number") {
     return `${colors.brightGreen(expr.value.toString())}`;
@@ -9,7 +10,7 @@ export function renderColoredExpression(expr: LispExpression): string {
 
   if (expr.nodeType === "List") {
     return `${colors.yellow("(")}${
-      expr.elements.map(renderColoredExpression).join(" ")
+      expr.elements.map(renderExpression).join(" ")
     }${
       colors.yellow(
         ")",
@@ -20,11 +21,14 @@ export function renderColoredExpression(expr: LispExpression): string {
     return colors.gray("void");
   }
   if (expr.nodeType === "Symbol") {
-    return `${colors.cyan(expr.name)}`;
+    if (isSpecialSymbol(expr.name)) {
+      return colors.blue(expr.name);
+    }
+    return `${colors.white(expr.name)}`;
   }
   if (expr.nodeType === "Vector") {
     return `${colors.magenta("[")}${
-      expr.elements.map(renderColoredExpression).join(" ")
+      expr.elements.map(renderExpression).join(" ")
     }${colors.magenta("]")}`;
   }
 

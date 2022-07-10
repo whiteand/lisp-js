@@ -1,5 +1,5 @@
+import { ColorsContext } from "../contexts/colors.ts";
 import { LexicalError } from "../getLexems/LexicalError.ts";
-import { IColors } from "../IColors.ts";
 import { ICompilerArgs } from "../ICompilerArgs.ts";
 import { LispSyntaxError } from "../LispSyntaxError.ts";
 import { formatStack } from "../utils/formatStack.ts";
@@ -7,8 +7,8 @@ import { formatStack } from "../utils/formatStack.ts";
 export function printCompilerError(
   compilerArgs: ICompilerArgs,
   error: unknown,
-  colors: IColors,
 ) {
+  const colors = ColorsContext.getValue();
   if (error instanceof LexicalError) {
     error.log(colors);
     if (compilerArgs.showStack) {
