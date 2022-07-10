@@ -3,16 +3,15 @@ import { swc } from "../deps.ts";
 import { Module } from "../js-ast/swc.ts";
 import { LispSyntaxError } from "../LispSyntaxError.ts";
 import { compileGlobalFunctionCall } from "./compileGlobalFunctionCall.ts";
-import { FULL_STD_LIB_PATH, SPAN, STD_LIB_FILE } from "./constants.ts";
+import { SPAN, STD_LIB_FILE } from "./constants.ts";
 import { Scope } from "./Scope.ts";
+import { STD } from "./std-code.ts";
 import { IBundleFile, ICompilerState } from "./types.ts";
 
 export function* compile(
   expression$: Iterable<LispExpression>,
 ): Generator<IBundleFile, void, unknown> {
-  const fullStdLibAst = swc.parse(Deno.readTextFileSync(FULL_STD_LIB_PATH), {
-    syntax: "ecmascript",
-  }) as Module;
+  const fullStdLibAst = swc.parse(STD, { syntax: "ecmascript" }) as Module;
 
   const state: ICompilerState = {
     fullStdLibAst,
