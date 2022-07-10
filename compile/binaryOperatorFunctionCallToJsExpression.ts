@@ -1,11 +1,10 @@
-import { assert } from "../assert.ts";
 import { IList } from "../ast.ts";
 import { Expression } from "../js-ast/swc.ts";
+import { invariant } from "../syntaxInvariant.ts";
+import { SPAN } from "./constants.ts";
+import { isBinaryOperator } from "./isBinaryOperator.ts";
 import { lispExpressionToJsExpression } from "./lispExpressionToJsExpression.ts";
 import { ICompilerState } from "./types.ts";
-import { SPAN } from "./constants.ts";
-import { LispSyntaxError } from "../LispSyntaxError.ts";
-import { isBinaryOperator } from "./isBinaryOperator.ts";
 
 const DEFAULT_BINARY_OPERATOR_VALUE = new Map<string, number>();
 DEFAULT_BINARY_OPERATOR_VALUE.set("+", 0);
@@ -18,9 +17,9 @@ export function binaryOperatorFunctionCallToJsExpression(
   state: ICompilerState,
   expr: IList,
 ): Expression {
-  assert(expr.elements[0].nodeType === "Symbol", "impossible state");
+  invariant(expr.elements[0].nodeType === "Symbol", "impossible state", expr);
   const operator = expr.elements[0].name;
-  assert(isBinaryOperator(operator), "impossible state");
+  invariant(isBinaryOperator(operator), "impossible state", expr);
   if (expr.elements.length === 2) {
     if (operator === "/") {
       return {
@@ -40,12 +39,11 @@ export function binaryOperatorFunctionCallToJsExpression(
   }
   if (expr.elements.length === 1) {
     const defaultValue = DEFAULT_BINARY_OPERATOR_VALUE.get(operator);
-    if (defaultValue === undefined) {
-      throw LispSyntaxError.fromExpression(
-        "this operator has no default value",
-        expr,
-      );
-    }
+    invariant(
+      defaultValue,
+      "this operator should have at least one argument",
+      expr,
+    );
     return {
       type: "NumericLiteral",
       span: SPAN,

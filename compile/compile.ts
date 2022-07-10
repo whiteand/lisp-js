@@ -3,6 +3,7 @@ import { swc } from "../deps.ts";
 import { Module } from "../js-ast/swc.ts";
 import { LispSyntaxError } from "../LispSyntaxError.ts";
 import { compileGlobalFunctionCall } from "./compileGlobalFunctionCall.ts";
+import { invariant } from "../syntaxInvariant.ts";
 import { SPAN, STD_LIB_FILE } from "./constants.ts";
 import { Scope } from "../Scope.ts";
 import { STD } from "./std-code.ts";
@@ -36,35 +37,31 @@ export function* compile(
   };
 
   for (const expr of expression$) {
-    if (expr.nodeType === "BigInt") {
-      throw LispSyntaxError.fromExpression(
-        "Only functions can be globally used",
-        expr,
-      );
-    }
-    if (expr.nodeType === "Number") {
-      throw LispSyntaxError.fromExpression(
-        "Only functions can be globally used",
-        expr,
-      );
-    }
-    if (expr.nodeType === "Symbol") {
-      throw LispSyntaxError.fromExpression(
-        "Only functions can be globally used",
-        expr,
-      );
-    }
-    if (expr.nodeType === "Vector") {
-      throw LispSyntaxError.fromExpression(
-        "Only functions can be globally used",
-        expr,
-      );
-    }
+    invariant(
+      expr.nodeType !== "BigInt",
+      "This statement cannot be global",
+      expr,
+    );
+    invariant(
+      expr.nodeType !== "Number",
+      "This statement cannot be global",
+      expr,
+    );
+    invariant(
+      expr.nodeType !== "Symbol",
+      "This statement cannot be global",
+      expr,
+    );
+    invariant(
+      expr.nodeType !== "Vector",
+      "This statement cannot be global",
+      expr,
+    );
     if (expr.nodeType === "List") {
       compileGlobalFunctionCall(state, expr);
       continue;
     }
-    throw LispSyntaxError.fromExpression("Unknown expression", expr);
+    invariant(false, "Unsupported expression", expr);
   }
 
   yield {

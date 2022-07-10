@@ -1,8 +1,7 @@
-import { assert } from "../assert.ts";
 import { ISymbol } from "../ast.ts";
 import { ExportDeclaration } from "../js-ast/swc.ts";
 import { getNodeByType, querySelector } from "../js-ast/traverse.ts";
-import { LispSyntaxError } from "../LispSyntaxError.ts";
+import { invariant } from "../syntaxInvariant.ts";
 import { ICompilerState } from "./types.ts";
 
 export function addStdLibExport(
@@ -10,7 +9,7 @@ export function addStdLibExport(
   nameSymbol: ISymbol,
 ): void {
   const program = getNodeByType("Module", state.stdLib.ast);
-  assert(program, "cannot find program node in std lib file");
+  invariant(program, "cannot find program node in std lib file", nameSymbol);
 
   const exportDeclaration = querySelector<ExportDeclaration>(
     (node): node is ExportDeclaration => {
@@ -27,12 +26,11 @@ export function addStdLibExport(
     },
     state.fullStdLibAst,
   );
-  if (!exportDeclaration) {
-    throw LispSyntaxError.fromExpression(
-      "There is no such standard library function",
-      nameSymbol,
-    );
-  }
+  invariant(
+    exportDeclaration,
+    "There is no such standard library function",
+    nameSymbol,
+  );
   program.body.push(exportDeclaration);
   state.stdLib.scope.define(nameSymbol.name, {
     definitionType: "stdlib_export",

@@ -5,18 +5,15 @@ import { StdLibFunctionName } from "../compile/types.ts";
 import { getLexems } from "../getLexems/getLexems.ts";
 import { getLocatedCharsIterator } from "../getLocatedCharsIterator.ts";
 import { ICompilerArgs } from "../ICompilerArgs.ts";
-import { LispSyntaxError } from "../LispSyntaxError.ts";
 import { parseExpressions } from "../parseExpressions/parseExpressions.ts";
 import {
   renderColoredExpression,
   renderExpression,
 } from "../renderExpression.ts";
 import { IScope, Scope } from "../Scope.ts";
+import { isScopeOperatorName } from "../ScopeOperatorName.ts";
 import { SourceLocation } from "../SourceLocation.ts";
-
-interface IRunOptions {
-  entrypointFilePath: string;
-}
+import { invariant } from "../syntaxInvariant.ts";
 
 export async function run(compilerArgs: ICompilerArgs): Promise<void> {
   const character$ = await getLocatedCharsIterator(
@@ -37,17 +34,6 @@ function interpret(
   const scope = new Scope(null);
   for (const expression of expression$) {
     evaluate(compilerArgs, scope, expression);
-  }
-}
-
-function invariant<T>(
-  condition: T,
-  message: string,
-  expr: LispExpression,
-): asserts condition {
-  if (!condition) {
-    LispSyntaxError.fromExpression(message, expr).log();
-    Deno.exit(1);
   }
 }
 
@@ -74,6 +60,9 @@ function evaluate(
       return e;
     }
     if (isBinaryOperator(e.name)) {
+      return e;
+    }
+    if (isScopeOperatorName(e.name)) {
       return e;
     }
     const definition = scope.getDefinition(e.name);
@@ -110,6 +99,9 @@ function evaluate(
       }
       if (isBinaryOperator(funcExpr.name)) {
         return evaluateBinaryOperator(compilerArgs, scope, e);
+      }
+      if (isScopeOperatorName(funcExpr.name)) {
+        return executeScopeOperator(compilerArgs, scope, e);
       }
     }
     invariant(false, `cannot call`, e.elements[0]);
@@ -331,4 +323,32 @@ function stdLibFunctionCall(
     return VOID;
   }
   invariant(false, "Cannot execute std lib call", func);
+}
+
+function executeScopeOperator(
+  compilerArgs: ICompilerArgs,
+  scope: IScope,
+  e: IList,
+): LispExpression {
+  invariant(e.elements.length > 0, "impossible state", e);
+  invariant(e.elements[0].nodeType === "Symbol", "symbol expected", e);
+  invariant(
+    isScopeOperatorName(e.elements[0].name),
+    "scope operator name expected",
+    e,
+  );
+  if (e.elements[0].name === "const") {
+    invariant(e.elements.length === 3, "const takes 2 arguments", e);
+    const name = e.elements[1];
+    const value = evaluate(compilerArgs, scope, e.elements[2]);
+    invariant(name.nodeType === "Symbol", "symbol expected", name);
+    scope.define(name.name, {
+      definitionType: "Const",
+      value,
+      declaration: e,
+    });
+    return VOID;
+  }
+  invariant(false, "Cannot handle this scope operator", e);
+  throw new Error("Function not implemented.");
 }

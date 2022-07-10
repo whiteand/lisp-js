@@ -1,25 +1,24 @@
 import { LispExpression } from "../ast.ts";
 import { Argument, Expression } from "../js-ast/swc.ts";
-import { LispSyntaxError } from "../LispSyntaxError.ts";
-import { binaryOperatorFunctionCallToJsExpression } from "./binaryOperatorFunctionCallToJsExpression.ts";
+import { invariant } from "../syntaxInvariant.ts";
 import { addStdLibExport } from "./addStdLibExport.ts";
 import { addStdLibImport } from "./addStdLibImport.ts";
+import { binaryOperatorFunctionCallToJsExpression } from "./binaryOperatorFunctionCallToJsExpression.ts";
 import { SPAN } from "./constants.ts";
 import { isBinaryOperator } from "./isBinaryOperator.ts";
-import { ICompilerState } from "./types.ts";
 import { isStdLibFunction } from "./isStdLibFunction.ts";
+import { ICompilerState } from "./types.ts";
 
 export function lispExpressionToJsExpression(
   state: ICompilerState,
   expr: LispExpression,
 ): Expression {
   if (expr.nodeType === "List") {
-    if (expr.elements.length <= 0) {
-      throw LispSyntaxError.fromExpression(
-        "empty lists are not supported yet",
-        expr,
-      );
-    }
+    invariant(
+      expr.elements.length > 0,
+      "empty lists are not supported yet",
+      expr,
+    );
     const funcExpression = expr.elements[0];
     if (funcExpression.nodeType === "Symbol") {
       const functionName = funcExpression.name;
@@ -36,9 +35,10 @@ export function lispExpressionToJsExpression(
           }
           addStdLibImport(state, funcExpression);
         } else {
-          throw LispSyntaxError.fromExpression(
-            `function ${functionName} is not defined`,
-            funcExpression,
+          invariant(
+            false,
+            "user defined functions not supported yet",
+            expr,
           );
         }
       }
@@ -65,5 +65,5 @@ export function lispExpressionToJsExpression(
       span: SPAN,
     };
   }
-  throw LispSyntaxError.fromExpression("cannot compile to js expression", expr);
+  invariant(false, "cannot compile to js", expr);
 }

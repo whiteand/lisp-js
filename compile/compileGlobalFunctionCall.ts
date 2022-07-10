@@ -1,15 +1,11 @@
 import { IList, ISymbol } from "../ast.ts";
 import { Statement } from "../js-ast/swc.ts";
-import { LispSyntaxError } from "../LispSyntaxError.ts";
+import { isScopeOperatorName } from "../ScopeOperatorName.ts";
+import { invariant } from "../syntaxInvariant.ts";
 import { appendStatement } from "./appendStatement.ts";
 import { SPAN } from "./constants.ts";
 import { lispExpressionToJsExpression } from "./lispExpressionToJsExpression.ts";
 import { ICompilerState } from "./types.ts";
-
-function isScopeOperator(_: ISymbol) {
-  // TODO: Add scope operator here
-  return false;
-}
 
 function isControlFlowOperator(_: ISymbol) {
   // TODO: Add control flow operator here
@@ -21,22 +17,14 @@ export function compileGlobalFunctionCall(
   expr: IList,
 ): void {
   const { elements } = expr;
-  if (elements.length <= 0) {
-    throw LispSyntaxError.fromExpression("empty lists are not supported", expr);
-  }
+  invariant(elements.length > 0, "empty lists are not supported", expr);
   const func = elements[0];
   if (func.nodeType === "Symbol") {
-    if (isScopeOperator(func)) {
-      throw LispSyntaxError.fromExpression(
-        "Scope operators not supported",
-        func,
-      );
+    if (isScopeOperatorName(func.name)) {
+      invariant(false, "Scope operators not supported yet", func);
     }
     if (isControlFlowOperator(func)) {
-      throw LispSyntaxError.fromExpression(
-        "Control flow operators not supported",
-        func,
-      );
+      invariant(false, "Control flow operators not supported", func);
     }
     const jsExpression = lispExpressionToJsExpression(state, expr);
     const expressionStatement: Statement = {
@@ -47,5 +35,5 @@ export function compileGlobalFunctionCall(
     appendStatement(state.indexJs.ast, expressionStatement);
     return;
   }
-  throw LispSyntaxError.fromExpression(`cannot transform`, expr);
+  invariant(false, "invalid global statement", expr);
 }

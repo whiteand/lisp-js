@@ -1,4 +1,4 @@
-import { LispExpression } from "./ast.ts";
+import { IList, LispExpression } from "./ast.ts";
 
 export interface ITree<T> {
   readonly parent: T | null;
@@ -30,9 +30,16 @@ interface IExpressionDefinition {
   expression: LispExpression;
 }
 
+interface IConstDefinition {
+  definitionType: "Const";
+  declaration: IList
+  value: LispExpression
+}
+
 export type TDefinition =
   | IStdLibExportDefinition
   | IExpressionDefinition
+  | IConstDefinition
   | IImportFromStdDefinition;
 
 export class Scope implements IScope {

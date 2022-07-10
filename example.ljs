@@ -16,3 +16,8 @@
 (log (/)) // => 0
 (log (/ 1)) // => 1
 (log (/ 1 2))
+
+// constants
+
+(const x 42)
+(log x)

@@ -23,6 +23,7 @@ export async function compile(
   const bundleFile$ = compileStep(expression$);
 
   const consoleColumns = Deno.consoleSize(Deno.stdout.rid).columns;
+
   try {
     for (const file of bundleFile$) {
       console.log();
