@@ -12,6 +12,7 @@ DEFAULT_BINARY_OPERATOR_VALUE.set("+", 0);
 DEFAULT_BINARY_OPERATOR_VALUE.set("-", 0);
 DEFAULT_BINARY_OPERATOR_VALUE.set("*", 0);
 DEFAULT_BINARY_OPERATOR_VALUE.set("/", 1);
+DEFAULT_BINARY_OPERATOR_VALUE.set("**", 1);
 
 export function binaryOperatorFunctionCallToJsExpression(
   state: ICompilerState,
