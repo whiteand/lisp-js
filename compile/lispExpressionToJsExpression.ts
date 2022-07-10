@@ -72,6 +72,14 @@ export function lispExpressionToJsExpression(
       span: SPAN,
     };
   }
+  if (expr.nodeType === "String") {
+    return {
+      type: "StringLiteral",
+      span: SPAN,
+      hasEscape: expr.hasEscape,
+      value: expr.value,
+    };
+  }
   if (expr.nodeType === "Symbol") {
     const definition = state.files[OUT_ENTRYPOINT_PATH].scope.getDefinition(
       expr.name,

@@ -13,19 +13,24 @@ export async function parseArguments(): Promise<
     entrypointFilePath: "",
     colors: false,
     showStack: false,
+    measurePerformance: false,
   };
   for (const arg of Deno.args.slice(1)) {
     if (arg === "--colors") {
       args.colors = true;
-      continue
+      continue;
+    }
+    if (arg === "--measure-performance") {
+      args.measurePerformance = true;
+      continue;
     }
     if (arg === "--show-stack") {
       args.showStack = true;
-      continue
+      continue;
     }
     if (arg === "--help") {
       logHelp();
-      continue
+      continue;
     }
     args.entrypointFilePath = arg;
   }

@@ -8,6 +8,12 @@ interface ICommentLexem {
   value: string;
 }
 
+interface IStringLexem {
+  type: 'String',
+  value: string
+  hasEscape: boolean
+}
+
 interface INewLineLexem {
   type: 'newline'
 }
@@ -22,4 +28,5 @@ export type TLexem =
   | number
   | bigint
   | ISymbolLexem
+  | IStringLexem
   | ICommentLexem;

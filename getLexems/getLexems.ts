@@ -63,14 +63,24 @@ export function* getLexems(
             locatedChar,
             end || nextLocatedCharEntry.value,
           );
-          continue nextChar
+          continue nextChar;
         }
-        input.back()
+        input.back();
       }
       if (char === "\n") {
         const nextCharEntry = input.next();
-        let end = locatedChar
-        if (nextCharEntry.done || nextCharEntry.value.char !== "\r") {
+        let end = locatedChar;
+        if (nextCharEntry.done) {
+          yield makeLexem(
+            {
+              type: "newline",
+            },
+            locatedChar,
+            end,
+          );
+          break nextChar;
+        }
+        if (nextCharEntry.value.char !== "\r") {
           input.back();
         } else {
           end = nextCharEntry.value;
@@ -97,6 +107,19 @@ export function* getLexems(
         }
 
         // deno-lint-ignore no-unreachable
+        continue nextChar;
+      }
+      if (char === '"') {
+        const { value, end, hasEscape } = parseString(locatedChar, input);
+        yield makeLexem(
+          {
+            type: "String",
+            value,
+            hasEscape,
+          },
+          locatedChar,
+          end,
+        );
         continue nextChar;
       }
       if (char === "(") {
@@ -149,5 +172,49 @@ export function* getLexems(
       throw new LexicalError(`unexpected character: "${char}"`, locatedChar);
     }
     throw new LexicalError(`unexpected character: ${char}`, locatedChar);
+  }
+}
+
+function parseString(
+  startQuote: ILocatedChar,
+  iter: IBackableIterator<ILocatedChar>,
+): {
+  value: string;
+  end: ILocatedChar;
+  hasEscape: boolean;
+} {
+  let hasEscape = false;
+  const chars: string[] = [];
+  let end: ILocatedChar = startQuote;
+  let preLastChar: string | null = null;
+  while (true) {
+    const charEntry = iter.next();
+    if (charEntry.done) {
+      let eofPos = end;
+      if (!eofPos) {
+        iter.back();
+        iter.back();
+        eofPos = iter.next().value!;
+      }
+      throw new LexicalError("unexpected end of input", eofPos);
+    }
+    if (charEntry.value.char === '"') {
+      end = charEntry.value;
+      return { value: chars.join(""), end, hasEscape };
+    }
+    if (charEntry.value.char === "n" && preLastChar === "\\") {
+      chars[chars.length - 1] = "\n";
+      hasEscape = true;
+    } else if (charEntry.value.char === "r" && preLastChar === "\\") {
+      chars[chars.length - 1] = "\r";
+      hasEscape = true;
+    } else if (charEntry.value.char === "t" && preLastChar === "\\") {
+      chars[chars.length - 1] = "\t";
+      hasEscape = true;
+    } else {
+      chars.push(charEntry.value.char);
+    }
+    end = charEntry.value;
+    preLastChar = charEntry.value.char;
   }
 }

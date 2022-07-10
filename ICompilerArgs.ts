@@ -1,6 +1,7 @@
 export interface ICompilerArgs {
   entrypointFilePath: string;
   command: "run" | "compile";
-  showStack: boolean
+  showStack: boolean;
   colors: boolean;
+  measurePerformance: boolean;
 }

@@ -7,9 +7,9 @@ import { swc } from "../deps.ts";
  */
 export function renderNode(
   ast: Program,
-): string {
+): Promise<string> {
   const res = swc.print(ast, {
     minify: false,
   });
-  return res.code || "";
+  return Promise.resolve(res.code || "")
 }

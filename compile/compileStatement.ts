@@ -2,7 +2,7 @@ import { IList, ISymbol } from "../ast.ts";
 import { Statement } from "../js-ast/swc.ts";
 import { isScopeOperatorName } from "../ScopeOperatorName.ts";
 import { invariant } from "../syntaxInvariant.ts";
-import { appendStatement, appendToMain } from "./appendStatement.ts";
+import { appendToMain } from "./appendStatement.ts";
 import { OUT_ENTRYPOINT_PATH, SPAN } from "./constants.ts";
 import { lispExpressionToJsExpression } from "./lispExpressionToJsExpression.ts";
 import { ICompilerState } from "./types.ts";

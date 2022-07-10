@@ -96,6 +96,42 @@ export function forEachNode(
       nodes.push(node.local);
       continue;
     }
+    if (node.type === "ReturnStatement") {
+      nodes.push(node.argument);
+      continue;
+    }
+    if (node.type === "IfStatement") {
+      if (node.alternate) {
+        nodes.push(node.alternate);
+      }
+      if (node.consequent) {
+        nodes.push(node.consequent);
+      }
+      nodes.push(node.test);
+      continue;
+    }
+    if (node.type === "NullLiteral") {
+      continue;
+    }
+    if (node.type === "NewExpression") {
+      nodes.push(...node.arguments.map((arg) => arg.expression));
+      nodes.push(node.callee);
+      continue;
+    }
+    if (node.type === "FunctionExpression") {
+      nodes.push(node.body);
+      nodes.push(...node.params);
+      nodes.push(node.identifier);
+      continue
+    }
+    if (node.type === "ThrowStatement") {
+      nodes.push(node.argument);
+      continue;
+    }
+    if (node.type === "Computed") {
+      nodes.push(node.expression);
+      continue;
+    }
     if (node.type === "StringLiteral") continue;
     if (node.type === "NumericLiteral") continue;
 

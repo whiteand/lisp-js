@@ -1,13 +1,7 @@
 import { assert } from "../assert.ts";
 import { ExportDefaultDeclaration, Module, Statement } from "../js-ast/swc.ts";
-import { getNodeByType, querySelector } from "../js-ast/traverse.ts";
+import { querySelector } from "../js-ast/traverse.ts";
 import { DEFAULT_FUNCTION_NAME } from "./constants.ts";
-
-export function appendStatement(ast: Module, jsStatement: Statement): void {
-  const module = getNodeByType("Module", ast);
-  assert(module, "There is no module in the ast");
-  module.body.push(jsStatement);
-}
 
 export function appendToMain(ast: Module, jsStatement: Statement): void {
   const main = querySelector<ExportDefaultDeclaration>(

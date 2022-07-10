@@ -158,6 +158,20 @@ export function* parseExpressions(
         throw LispSyntaxError.fromLocatedLexem('Unexpected "]"', locatedLexem);
       }
 
+      if (lexem.type === "String") {
+        stack.push({
+          stackType: "expression",
+          expression: {
+            nodeType: "String",
+            hasEscape: lexem.hasEscape,
+            start: locatedLexem.start,
+            end: locatedLexem.end,
+            value: lexem.value,
+          },
+        });
+        continue
+      }
+
       if (lexem.type === "symbol") {
         stack.push({
           stackType: "expression",
