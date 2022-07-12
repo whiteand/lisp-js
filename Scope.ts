@@ -156,7 +156,7 @@ export class Scope implements IScope {
       this.sequenceNumber,
     );
     while (true) {
-      const name = sequenceNumberToName(sequenceNumber++);
+      const name = "__auto_" + sequenceNumberToName(sequenceNumber++);
       const def = this.getDefinition(name);
       if (def) continue;
       this.forceDefine(name, definition);
