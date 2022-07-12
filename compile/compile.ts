@@ -1,8 +1,8 @@
 import { LispExpression } from "../ast.ts";
-import { swc } from "../deps.ts";
-import { Module } from "../js-ast/swc.ts";
+import { parse, swcType } from "../deps.ts";
 import { Scope } from "../Scope.ts";
 import { invariant } from "../syntaxInvariant.ts";
+import { BlockStatementList } from "./BlockStatementList.ts";
 import { compileStatement } from "./compileStatement.ts";
 import { OUT_ENTRYPOINT_PATH, SPAN } from "./constants.ts";
 import { injectDefaultExportMain } from "./injectDefaultExportMain.ts";
@@ -12,9 +12,9 @@ import { IBundleFile, ICompilerState } from "./types.ts";
 export async function compile(
   expression$: Iterable<LispExpression>,
 ): Promise<IBundleFile[]> {
-  const fullStdLibAst = await swc.parse(STD, {
+  const fullStdLibAst = await parse(STD, {
     syntax: "ecmascript",
-  }) as Module;
+  }) as swcType.Module;
 
   const state: ICompilerState = {
     files: {
@@ -22,7 +22,7 @@ export async function compile(
         ast: {
           type: "Module",
           span: SPAN,
-          interpreter: null,
+          interpreter: null as any,
           body: [],
         },
         scope: new Scope(null),
@@ -31,7 +31,12 @@ export async function compile(
     fullStdLibAst,
   };
 
-  injectDefaultExportMain(state, OUT_ENTRYPOINT_PATH);
+  const blockStatement = injectDefaultExportMain(state, OUT_ENTRYPOINT_PATH);
+  const activeScope = state.files[OUT_ENTRYPOINT_PATH].scope;
+  const blockStatementList = new BlockStatementList(
+    activeScope,
+    blockStatement,
+  );
 
   for (const expr of expression$) {
     invariant(
@@ -55,11 +60,13 @@ export async function compile(
       expr,
     );
     if (expr.nodeType === "List") {
-      compileStatement(state, expr);
+      compileStatement(state, blockStatementList, expr);
       continue;
     }
     invariant(false, "Unsupported expression", expr);
   }
+
+  blockStatementList.close();
 
   return [{
     relativePath: "index.js",

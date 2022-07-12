@@ -1,4 +1,5 @@
 import { assert } from "../assert.ts";
+import { swcType } from "../deps.ts";
 import { getNodeByType } from "../js-ast/traverse.ts";
 import { DEFAULT_FUNCTION_NAME, SPAN } from "./constants.ts";
 import { ICompilerState } from "./types.ts";
@@ -6,7 +7,7 @@ import { ICompilerState } from "./types.ts";
 export function injectDefaultExportMain(
   state: ICompilerState,
   filePath: string,
-): void {
+): swcType.BlockStatement {
   const file = state.files[filePath];
   const module = file.ast;
   const scope = file.scope;
@@ -14,6 +15,11 @@ export function injectDefaultExportMain(
   const defaultExport = getNodeByType("ExportDefaultDeclaration", module);
   assert(!defaultExport, "default export already exists");
 
+  const mainFunctionBlockStatement: swcType.BlockStatement = {
+    type: "BlockStatement",
+    span: SPAN,
+    stmts: [],
+  };
   module.body.push({
     type: "ExportDefaultDeclaration",
     span: SPAN,
@@ -22,11 +28,7 @@ export function injectDefaultExportMain(
       span: SPAN,
       generator: false,
       async: false,
-      body: {
-        type: "BlockStatement",
-        span: SPAN,
-        stmts: [],
-      },
+      body: mainFunctionBlockStatement,
       identifier: {
         type: "Identifier",
         optional: false,
@@ -39,4 +41,5 @@ export function injectDefaultExportMain(
   scope.forceDefine(DEFAULT_FUNCTION_NAME, {
     definitionType: "DefaultFunctionName",
   });
+  return mainFunctionBlockStatement;
 }

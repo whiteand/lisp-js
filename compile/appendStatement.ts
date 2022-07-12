@@ -1,11 +1,11 @@
 import { assert } from "../assert.ts";
-import { ExportDefaultDeclaration, Module, Statement } from "../js-ast/swc.ts";
+import { swcType } from "../deps.ts";
 import { querySelector } from "../js-ast/traverse.ts";
 import { DEFAULT_FUNCTION_NAME } from "./constants.ts";
 
-export function appendToMain(ast: Module, jsStatement: Statement): void {
-  const main = querySelector<ExportDefaultDeclaration>(
-    (node): node is ExportDefaultDeclaration => {
+export function appendToMain(ast: swcType.Module, jsStatement: swcType.Statement): void {
+  const main = querySelector<swcType.ExportDefaultDeclaration>(
+    (node): node is swcType.ExportDefaultDeclaration => {
       if (node.type !== "ExportDefaultDeclaration") return false;
       if (node.decl.type !== "FunctionExpression") return false;
       if (node.decl.identifier.value !== DEFAULT_FUNCTION_NAME) return false;

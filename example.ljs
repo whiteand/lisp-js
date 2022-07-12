@@ -2,14 +2,8 @@
 
 (const z 3.1415)
 
-// Method call
-(const formatted (.toFixed z 2))
-(log formatted) // => 3.14
-
-// get property
-(log (get "length" formatted)) // => 4
-(log (get "length" [1,2,3])) // => 3
-
-// get is auto carried
-(const len (get "length"))
-(log (len [1,2,3,4]))
+(const compose (fn [f g] (fn [x] (f (g x)))))
+(const inc (fn [x] (+ 1 x)))
+(const inc2 (compose inc inc))
+(const a 43)
+(log (inc2 2))

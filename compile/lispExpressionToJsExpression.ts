@@ -1,9 +1,11 @@
 import { ISymbol, LispExpression } from "../ast.ts";
-import { Argument, Expression, FunctionDeclaration } from "../js-ast/swc.ts";
+import { swcType } from "../deps.ts";
 import { getNodeByType, querySelector } from "../js-ast/traverse.ts";
 import { invariant } from "../syntaxInvariant.ts";
+import { anonymousFunctionDeclaration } from "./anonymousFunctionDeclaration.ts";
 import { binaryOperatorFunctionCallToJsExpression } from "./binaryOperatorFunctionCallToJsExpression.ts";
 import { OUT_ENTRYPOINT_PATH, SPAN } from "./constants.ts";
+import { IBlockStatementList } from "./IBlockStatementList.ts";
 import { isBinaryOperator } from "./isBinaryOperator.ts";
 import { isStdLibFunction } from "./isStdLibFunction.ts";
 import { methodCall } from "./methodCall.ts";
@@ -11,8 +13,9 @@ import { ICompilerState } from "./types.ts";
 
 export function lispExpressionToJsExpression(
   state: ICompilerState,
+  blockStatementList: IBlockStatementList,
   expr: LispExpression,
-): Expression {
+): swcType.Expression {
   if (expr.nodeType === "List") {
     invariant(
       expr.elements.length > 0,
@@ -22,15 +25,22 @@ export function lispExpressionToJsExpression(
     const funcExpression = expr.elements[0];
     if (funcExpression.nodeType === "Symbol") {
       const functionName = funcExpression.name;
+      if (functionName === "fn") {
+        return anonymousFunctionDeclaration(state, blockStatementList, expr);
+      }
       if (isBinaryOperator(functionName)) {
-        return binaryOperatorFunctionCallToJsExpression(state, expr);
+        return binaryOperatorFunctionCallToJsExpression(
+          state,
+          blockStatementList,
+          expr,
+        );
       }
 
       if (funcExpression.member) {
-        return methodCall(state, expr);
+        return methodCall(state, blockStatementList, expr);
       }
 
-      const definition = state.files[OUT_ENTRYPOINT_PATH].scope.getDefinition(
+      let definition = blockStatementList.getDefinition(
         functionName,
       );
 
@@ -41,14 +51,20 @@ export function lispExpressionToJsExpression(
             OUT_ENTRYPOINT_PATH,
             funcExpression,
           );
-        } else {
-          invariant(
-            false,
-            "user defined functions not supported yet",
-            expr,
+          definition = blockStatementList.getDefinition(
+            functionName,
           );
         }
       }
+
+      invariant(definition, "cannot find definition", funcExpression);
+
+      const added = blockStatementList.tryAddReference(
+        funcExpression.name,
+        funcExpression,
+      );
+
+      invariant(added, "cannot add reference", funcExpression);
 
       return {
         type: "CallExpression",
@@ -58,8 +74,12 @@ export function lispExpressionToJsExpression(
           span: SPAN,
           value: funcExpression.name,
         },
-        arguments: expr.elements.slice(1).map((arg): Argument => ({
-          expression: lispExpressionToJsExpression(state, arg),
+        arguments: expr.elements.slice(1).map((arg): swcType.Argument => ({
+          expression: lispExpressionToJsExpression(
+            state,
+            blockStatementList,
+            arg,
+          ),
         })),
         span: SPAN,
       };
@@ -81,11 +101,21 @@ export function lispExpressionToJsExpression(
     };
   }
   if (expr.nodeType === "Symbol") {
-    const definition = state.files[OUT_ENTRYPOINT_PATH].scope.getDefinition(
+    const definition = blockStatementList.getDefinition(
       expr.name,
     );
     invariant(definition, "undefined symbol", expr);
     if (definition.definitionType === "Const") {
+      blockStatementList.tryAddReference(expr.name, expr);
+      return {
+        type: "Identifier",
+        optional: false,
+        span: SPAN,
+        value: expr.name,
+      };
+    }
+    if (definition.definitionType === "FunctionParameter") {
+      blockStatementList.tryAddReference(expr.name, expr);
       return {
         type: "Identifier",
         optional: false,
@@ -104,7 +134,7 @@ export function lispExpressionToJsExpression(
       type: "ArrayExpression",
       span: SPAN,
       elements: expr.elements.map((e) => ({
-        expression: lispExpressionToJsExpression(state, e),
+        expression: lispExpressionToJsExpression(state, blockStatementList, e),
       })),
     };
   }
@@ -125,8 +155,8 @@ function appendStdLibFunctionDeclaration(
     functionNameSymbol,
   );
 
-  const stdFuncDeclaration = querySelector<FunctionDeclaration>(
-    (node): node is FunctionDeclaration => {
+  const stdFuncDeclaration = querySelector<swcType.FunctionDeclaration>(
+    (node): node is swcType.FunctionDeclaration => {
       if (node.type !== "FunctionDeclaration") {
         return false;
       }

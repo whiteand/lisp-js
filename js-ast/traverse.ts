@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
-import { TNode } from "./swc.ts";
+import { TNode } from "./TNode.ts";
 
 export function getNodeByType<T extends TNode["type"]>(
   type: T,

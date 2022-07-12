@@ -1,6 +1,6 @@
 export function getLines(text: string, maxLineLength: number): string[] {
   const lines = [];
-  const initialLines = text.split("\n").map((e) => e.trim());
+  const initialLines = text.split("\n");
   for (const line of initialLines) {
     if (line.length <= maxLineLength) {
       lines.push(line);

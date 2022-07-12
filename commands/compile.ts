@@ -1,4 +1,5 @@
 import { compile as compileStep } from "../compile/compile.ts";
+import { IBundleFile } from "../compile/types.ts";
 import { ColorsContext } from "../contexts/colors.ts";
 import { ACTUAL_TIMER, NO_TIMER, TimerContext } from "../contexts/timer.ts";
 import { colors as actualColors } from "../deps.ts";
@@ -29,31 +30,42 @@ export async function compile(
   timer.reset();
   const { entrypointFilePath } = compilerArgs;
   timer.finished("initialization");
-  const character$ = await getLocatedCharsIterator(entrypointFilePath);
-  timer.finished("character$ created");
-
-  const lexem$ = getLexems(character$);
-  timer.finished("lexem$ created");
-
-  const expression$ = parseExpressions(lexem$);
-  timer.finished("expression$ created");
-
-  const bundleFile$ = await compileStep(expression$);
-  timer.finished("bundleFile$ created");
-
   try {
+    const character$ = await getLocatedCharsIterator(entrypointFilePath);
+    timer.finished("character$ created");
+
+    const lexem$ = getLexems(character$);
+    timer.finished("lexem$ created");
+
+    const expression$ = parseExpressions(lexem$);
+    timer.finished("expression$ created");
+
+    const bundleFile$ = await compileStep(expression$);
+
     const bundleFiles = [...bundleFile$];
+    timer.finished("bundleFile$ created");
     Deno.mkdir("./dist", { recursive: true });
-    await Promise.all(
-      bundleFiles.map((file) =>
-        renderNode(file.ast).then((code) =>
-          Deno.writeTextFile(`./dist/${file.relativePath}`, code)
-        )
-      ),
-    );
+    for (const bundleFile of bundleFiles) {
+      const code = await renderNode(bundleFile.ast);
+      printBundleFilesToConsole(bundleFile.relativePath, code);
+      saveBundleFilesToHarddrive(bundleFile.relativePath, code);
+    }
   } catch (error) {
     printCompilerError(compilerArgs, error);
   } finally {
     cleanup();
   }
+}
+
+function printBundleFilesToConsole(relativePath: string, code: string) {
+  const colors = ColorsContext.getValue();
+  console.log(colors.green(relativePath));
+  console.log(code);
+}
+
+function saveBundleFilesToHarddrive(
+  relativePath: string,
+  code: string,
+) {
+  return Deno.writeTextFile(`./dist/${relativePath}`, code);
 }

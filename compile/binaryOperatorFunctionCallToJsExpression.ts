@@ -1,7 +1,8 @@
 import { IList } from "../ast.ts";
-import { Expression } from "../js-ast/swc.ts";
+import { swcType } from "../deps.ts";
 import { invariant } from "../syntaxInvariant.ts";
 import { SPAN } from "./constants.ts";
+import { IBlockStatementList } from "./IBlockStatementList.ts";
 import { isBinaryOperator } from "./isBinaryOperator.ts";
 import { lispExpressionToJsExpression } from "./lispExpressionToJsExpression.ts";
 import { ICompilerState } from "./types.ts";
@@ -15,8 +16,9 @@ DEFAULT_BINARY_OPERATOR_VALUE.set("**", 1);
 
 export function binaryOperatorFunctionCallToJsExpression(
   state: ICompilerState,
+  blockStatementList: IBlockStatementList,
   expr: IList,
-): Expression {
+): swcType.Expression {
   invariant(expr.elements[0].nodeType === "Symbol", "impossible state", expr);
   const operator = expr.elements[0].name;
   invariant(isBinaryOperator(operator), "impossible state", expr);
@@ -30,12 +32,20 @@ export function binaryOperatorFunctionCallToJsExpression(
           span: SPAN,
           value: 1,
         },
-        right: lispExpressionToJsExpression(state, expr.elements[1]),
+        right: lispExpressionToJsExpression(
+          state,
+          blockStatementList,
+          expr.elements[1],
+        ),
         span: SPAN,
       };
     }
     // There is only one argument
-    return lispExpressionToJsExpression(state, expr.elements[1]);
+    return lispExpressionToJsExpression(
+      state,
+      blockStatementList,
+      expr.elements[1],
+    );
   }
   if (expr.elements.length === 1) {
     const defaultValue = DEFAULT_BINARY_OPERATOR_VALUE.get(operator);
@@ -51,7 +61,7 @@ export function binaryOperatorFunctionCallToJsExpression(
     };
   }
 
-  const root: Expression = {
+  const root: swcType.Expression = {
     type: "BinaryExpression",
     span: SPAN,
     operator,
@@ -72,7 +82,7 @@ export function binaryOperatorFunctionCallToJsExpression(
   while (i >= 3) {
     const arg = expr.elements[i];
     i--;
-    const jsExpr = lispExpressionToJsExpression(state, arg);
+    const jsExpr = lispExpressionToJsExpression(state, blockStatementList, arg);
     res.right = jsExpr;
     res.left = {
       type: "BinaryExpression",
@@ -91,8 +101,16 @@ export function binaryOperatorFunctionCallToJsExpression(
     };
     res = res.left;
   }
-  res.left = lispExpressionToJsExpression(state, expr.elements[1]);
-  res.right = lispExpressionToJsExpression(state, expr.elements[2]);
+  res.left = lispExpressionToJsExpression(
+    state,
+    blockStatementList,
+    expr.elements[1],
+  );
+  res.right = lispExpressionToJsExpression(
+    state,
+    blockStatementList,
+    expr.elements[2],
+  );
 
   return root;
 }

@@ -1,9 +1,9 @@
 import { IList, ISymbol } from "../ast.ts";
-import { Statement } from "../js-ast/swc.ts";
+import { swcType } from "../deps.ts";
 import { isScopeOperatorName } from "../ScopeOperatorName.ts";
 import { invariant } from "../syntaxInvariant.ts";
-import { appendToMain } from "./appendStatement.ts";
-import { OUT_ENTRYPOINT_PATH, SPAN } from "./constants.ts";
+import { SPAN } from "./constants.ts";
+import { IBlockStatementList } from "./IBlockStatementList.ts";
 import { lispExpressionToJsExpression } from "./lispExpressionToJsExpression.ts";
 import { ICompilerState } from "./types.ts";
 
@@ -14,6 +14,7 @@ function isControlFlowOperator(_: ISymbol) {
 
 export function compileStatement(
   state: ICompilerState,
+  blockStatementList: IBlockStatementList,
   expr: IList,
 ): void {
   const { elements } = expr;
@@ -27,8 +28,12 @@ export function compileStatement(
         const symbol = elements[1];
         invariant(symbol.nodeType === "Symbol", "symbol expected", symbol);
         const value = elements[2];
-        const jsValue = lispExpressionToJsExpression(state, value);
-        const constStatement: Statement = {
+        const jsValue = lispExpressionToJsExpression(
+          state,
+          blockStatementList,
+          value,
+        );
+        const constStatement: swcType.Statement = {
           type: "VariableDeclaration",
           span: SPAN,
           kind: "const",
@@ -49,13 +54,13 @@ export function compileStatement(
           ],
         };
 
-        state.files[OUT_ENTRYPOINT_PATH].scope.define(symbol.name, {
+        blockStatementList.define(symbol.name, {
           definitionType: "Const",
           declaration: expr,
           value,
         }, expr);
 
-        appendToMain(state.files[OUT_ENTRYPOINT_PATH].ast, constStatement);
+        blockStatementList.append(constStatement);
 
         return;
       }
@@ -64,13 +69,17 @@ export function compileStatement(
     if (isControlFlowOperator(func)) {
       invariant(false, "Control flow operators not supported", func);
     }
-    const jsExpression = lispExpressionToJsExpression(state, expr);
-    const expressionStatement: Statement = {
+    const jsExpression = lispExpressionToJsExpression(
+      state,
+      blockStatementList,
+      expr,
+    );
+    const expressionStatement: swcType.Statement = {
       type: "ExpressionStatement",
       span: SPAN,
       expression: jsExpression,
     };
-    appendToMain(state.files[OUT_ENTRYPOINT_PATH].ast, expressionStatement);
+    blockStatementList.append(expressionStatement);
     return;
   }
   invariant(false, "invalid global statement", expr);

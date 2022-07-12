@@ -1,4 +1,4 @@
-import { IList, LispExpression } from "./ast.ts";
+import { IList, ISymbol, LispExpression } from "./ast.ts";
 import { LispSyntaxError } from "./LispSyntaxError.ts";
 import { renderLocation } from "./renderLocation.ts";
 import { sequenceNumberToName } from "./sequenceNumberToName.ts";
@@ -27,6 +27,8 @@ export interface IScope extends ITree<IScope> {
   removeChild(child: IScope): boolean;
   defineRandom(definition: TDefinition): string;
   getSequenceNumber(): number;
+  getReferences(symbol: string): LispExpression[];
+  tryAddReference(symbol: string, expression: LispExpression): boolean;
 }
 
 interface InjectedFromStdLib {
@@ -47,9 +49,21 @@ interface IConstDefinition {
   declaration: IList;
   value: LispExpression;
 }
+interface IParameterDefinition {
+  definitionType: "FunctionParameter";
+  symbol: ISymbol;
+}
+
+interface IAnonymousFunctionDefinition {
+  definitionType: "AnonymousFunction";
+  value: ISymbol;
+  minParametersNumber: number;
+}
 
 export type TDefinition =
   | IExpressionDefinition
+  | IParameterDefinition
+  | IAnonymousFunctionDefinition
   | DefaultFunctionNameDefinition
   | IConstDefinition
   | InjectedFromStdLib;
@@ -59,12 +73,45 @@ export class Scope implements IScope {
   private readonly definitionBySymbolName: Map<string, TDefinition>;
   public readonly children: IScope[];
   private sequenceNumber: number;
+  private readonly usedSymbols: Map<string, Set<LispExpression>> = new Map();
 
   constructor(parent: IScope | null) {
     this.sequenceNumber = 0;
     this.parent = parent;
     this.definitionBySymbolName = new Map();
     this.children = [];
+  }
+
+  getReferences(symbol: string): LispExpression[] {
+    const res: LispExpression[] = [];
+
+    const references = this.usedSymbols.get(symbol);
+    if (references) {
+      for (const reference of references) {
+        res.push(reference);
+      }
+    }
+    for (const child of this.children) {
+      res.push(...child.getReferences(symbol));
+    }
+    return res;
+  }
+
+  tryAddReference(symbol: string, expression: LispExpression): boolean {
+    const def = this.definitionBySymbolName.get(symbol);
+    if (def) {
+      const references = this.usedSymbols.get(symbol);
+      if (references) {
+        references.add(expression);
+        return true;
+      }
+      this.usedSymbols.set(symbol, new Set([expression]));
+      return true;
+    }
+    if (this.parent) {
+      return this.parent.tryAddReference(symbol, expression);
+    }
+    return false;
   }
 
   public removeChild(child: IScope): boolean {
@@ -144,6 +191,10 @@ export class Scope implements IScope {
         declaration,
       );
     }
+    if (previousDefinition.definitionType === "AnonymousFunction") {
+      previousDefinition.value.name = this.defineRandom(previousDefinition);
+      return;
+    }
     invariant(false, "Unexpected redeclaration", declaration);
   }
 
@@ -156,7 +207,7 @@ export class Scope implements IScope {
       this.sequenceNumber,
     );
     while (true) {
-      const name = "__auto_" + sequenceNumberToName(sequenceNumber++);
+      const name = sequenceNumberToName(sequenceNumber++);
       const def = this.getDefinition(name);
       if (def) continue;
       this.forceDefine(name, definition);

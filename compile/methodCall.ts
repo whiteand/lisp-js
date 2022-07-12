@@ -1,12 +1,17 @@
 import { IList } from "../ast.ts";
-import { Expression } from "../js-ast/swc.ts";
+import { swcType } from "../deps.ts";
 import { invariant } from "../syntaxInvariant.ts";
 import { SPAN } from "./constants.ts";
 import { getMethodNameFromMemberSymbol } from "./getMethodNameFromMemberSymbol.ts";
+import { IBlockStatementList } from "./IBlockStatementList.ts";
 import { lispExpressionToJsExpression } from "./lispExpressionToJsExpression.ts";
 import { ICompilerState } from "./types.ts";
 
-export function methodCall(state: ICompilerState, expr: IList): Expression {
+export function methodCall(
+  state: ICompilerState,
+  blockStatementList: IBlockStatementList,
+  expr: IList,
+): swcType.Expression {
   invariant(
     expr.elements.length >= 2,
     "Method call should have its object",
@@ -19,9 +24,13 @@ export function methodCall(state: ICompilerState, expr: IList): Expression {
     expr,
   );
   const objectExpr = expr.elements[1];
-  const objectJsExpr = lispExpressionToJsExpression(state, objectExpr);
+  const objectJsExpr = lispExpressionToJsExpression(
+    state,
+    blockStatementList,
+    objectExpr,
+  );
   const argsJsExpr = expr.elements.slice(2).map((argExpr) =>
-    lispExpressionToJsExpression(state, argExpr)
+    lispExpressionToJsExpression(state, blockStatementList, argExpr)
   );
 
   return {
