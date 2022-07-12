@@ -1,4 +1,4 @@
-const ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
+const ALPHABET = "_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 export function sequenceNumberToName(sequenceNumber: number): string {
   if (sequenceNumber < 0) {

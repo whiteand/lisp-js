@@ -24,6 +24,7 @@ export interface IScope extends ITree<IScope> {
     declaration: LispExpression,
   ): void;
   createChild(): IScope;
+  removeChild(child: IScope): boolean;
   defineRandom(definition: TDefinition): string;
   getSequenceNumber(): number;
 }
@@ -55,16 +56,22 @@ export type TDefinition =
 
 export class Scope implements IScope {
   public readonly parent: IScope | null;
-  private globalNameCounter: number;
   private readonly definitionBySymbolName: Map<string, TDefinition>;
   public readonly children: IScope[];
-  sequenceNumber: any;
+  private sequenceNumber: number;
 
   constructor(parent: IScope | null) {
-    this.globalNameCounter = 0;
+    this.sequenceNumber = 0;
     this.parent = parent;
     this.definitionBySymbolName = new Map();
     this.children = [];
+  }
+
+  public removeChild(child: IScope): boolean {
+    const ind = this.children.indexOf(child);
+    if (ind < 0) return false;
+    this.children.splice(ind, 1);
+    return true;
   }
 
   public getDefinition(symbol: string): TDefinition | null {
@@ -146,13 +153,14 @@ export class Scope implements IScope {
       : 0;
     let sequenceNumber = Math.max(
       parentSequenceNumber,
-      this.globalNameCounter,
+      this.sequenceNumber,
     );
     while (true) {
       const name = sequenceNumberToName(sequenceNumber++);
       const def = this.getDefinition(name);
       if (def) continue;
       this.forceDefine(name, definition);
+      this.sequenceNumber = sequenceNumber;
       return name;
     }
   }
