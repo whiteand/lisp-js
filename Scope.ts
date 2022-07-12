@@ -1,6 +1,7 @@
 import { IList, LispExpression } from "./ast.ts";
 import { LispSyntaxError } from "./LispSyntaxError.ts";
 import { renderLocation } from "./renderLocation.ts";
+import { sequenceNumberToName } from "./sequenceNumberToName.ts";
 import { invariant } from "./syntaxInvariant.ts";
 
 export interface ITree<T> {
@@ -22,8 +23,9 @@ export interface IScope extends ITree<IScope> {
     definition: TDefinition,
     declaration: LispExpression,
   ): void;
-
   createChild(): IScope;
+  defineRandom(definition: TDefinition): string;
+  getSequenceNumber(): number;
 }
 
 interface InjectedFromStdLib {
@@ -53,10 +55,13 @@ export type TDefinition =
 
 export class Scope implements IScope {
   public readonly parent: IScope | null;
+  private globalNameCounter: number;
   private readonly definitionBySymbolName: Map<string, TDefinition>;
   public readonly children: IScope[];
+  sequenceNumber: any;
 
   constructor(parent: IScope | null) {
+    this.globalNameCounter = 0;
     this.parent = parent;
     this.definitionBySymbolName = new Map();
     this.children = [];
@@ -135,7 +140,28 @@ export class Scope implements IScope {
     invariant(false, "Unexpected redeclaration", declaration);
   }
 
-  public createChild(): Scope {
+  defineRandom(definition: TDefinition): string {
+    const parentSequenceNumber = this.parent
+      ? this.parent.getSequenceNumber()
+      : 0;
+    let sequenceNumber = Math.max(
+      parentSequenceNumber,
+      this.globalNameCounter,
+    );
+    while (true) {
+      const name = sequenceNumberToName(sequenceNumber++);
+      const def = this.getDefinition(name);
+      if (def) continue;
+      this.forceDefine(name, definition);
+      return name;
+    }
+  }
+
+  getSequenceNumber() {
+    return this.sequenceNumber;
+  }
+
+  public createChild(): IScope {
     const child = new Scope(this);
     this.children.push(child);
     return child;
