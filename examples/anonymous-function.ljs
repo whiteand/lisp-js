@@ -1,0 +1,9 @@
+// Member access
+
+(const z 3.1415)
+
+(const compose (fn [f g] (fn [x] (f (g x)))))
+(const inc (fn [x] (+ 1 x)))
+(const inc2 (compose inc inc))
+(const a 43)
+(log (inc2 2))
