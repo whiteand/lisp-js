@@ -18,6 +18,10 @@ export interface IVectorExpression extends ILocationRange {
   nodeType: "Vector";
   elements: LispExpression[];
 }
+export interface IBooleanExpression extends ILocationRange {
+  nodeType: "Boolean";
+  value: boolean;
+}
 
 export interface IList extends ILocationRange {
   nodeType: "List";

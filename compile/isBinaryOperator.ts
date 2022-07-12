@@ -7,9 +7,11 @@ const BINARY_OPERATORS_ARR = [
   "/",
   "%",
   "**",
+  "and",
+  "or",
 ] as const;
 
-type BinaryOperatorString = Values<typeof BINARY_OPERATORS_ARR>;
+export type BinaryOperatorString = Values<typeof BINARY_OPERATORS_ARR>;
 
 const BINARY_OPERATORS = new Set<string>(BINARY_OPERATORS_ARR);
 export function isBinaryOperator(

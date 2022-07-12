@@ -101,6 +101,20 @@ export function lispExpressionToJsExpression(
     };
   }
   if (expr.nodeType === "Symbol") {
+    if (!expr.member && expr.name === "true") {
+      return {
+        type: "BooleanLiteral",
+        span: SPAN,
+        value: true,
+      };
+    }
+    if (!expr.member && expr.name === "false") {
+      return {
+        type: "BooleanLiteral",
+        span: SPAN,
+        value: false,
+      };
+    }
     const definition = blockStatementList.getDefinition(
       expr.name,
     );

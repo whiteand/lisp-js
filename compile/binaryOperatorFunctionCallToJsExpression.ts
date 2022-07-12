@@ -3,7 +3,7 @@ import { swcType } from "../deps.ts";
 import { invariant } from "../syntaxInvariant.ts";
 import { SPAN } from "./constants.ts";
 import { IBlockStatementList } from "./IBlockStatementList.ts";
-import { isBinaryOperator } from "./isBinaryOperator.ts";
+import { BinaryOperatorString, isBinaryOperator } from "./isBinaryOperator.ts";
 import { lispExpressionToJsExpression } from "./lispExpressionToJsExpression.ts";
 import { ICompilerState } from "./types.ts";
 
@@ -20,10 +20,10 @@ export function binaryOperatorFunctionCallToJsExpression(
   expr: IList,
 ): swcType.Expression {
   invariant(expr.elements[0].nodeType === "Symbol", "impossible state", expr);
-  const operator = expr.elements[0].name;
-  invariant(isBinaryOperator(operator), "impossible state", expr);
+  const lispOperator = expr.elements[0].name;
+  invariant(isBinaryOperator(lispOperator), "impossible state", expr);
   if (expr.elements.length === 2) {
-    if (operator === "/") {
+    if (lispOperator === "/") {
       return {
         type: "BinaryExpression",
         operator: `/`,
@@ -48,7 +48,7 @@ export function binaryOperatorFunctionCallToJsExpression(
     );
   }
   if (expr.elements.length === 1) {
-    const defaultValue = DEFAULT_BINARY_OPERATOR_VALUE.get(operator);
+    const defaultValue = DEFAULT_BINARY_OPERATOR_VALUE.get(lispOperator);
     invariant(
       defaultValue != null,
       "this operator should have at least one argument",
@@ -60,6 +60,7 @@ export function binaryOperatorFunctionCallToJsExpression(
       value: defaultValue,
     };
   }
+  const operator = operatorToJsOperator(lispOperator);
 
   const root: swcType.Expression = {
     type: "BinaryExpression",
@@ -113,4 +114,12 @@ export function binaryOperatorFunctionCallToJsExpression(
   );
 
   return root;
+}
+
+function operatorToJsOperator(
+  operator: BinaryOperatorString,
+): swcType.BinaryOperator {
+  if (operator === "and") return "&&";
+  if (operator === "or") return "||";
+  return operator;
 }
