@@ -2,7 +2,8 @@ import { LispExpression } from "../ast.ts";
 import { swcType } from "../deps.ts";
 import { IScope, TDefinition } from "../Scope.ts";
 import { IBlockStatementList } from "./IBlockStatementList.ts";
-import { IPlaceholderList, IStatementList } from "./IStatementList.ts";
+import { IStatementList } from "./IStatementList.ts";
+import { IPlaceholderList } from "./IPlaceholderList.ts";
 import { invariant } from "../syntaxInvariant.ts";
 
 export class PlaceholderList implements IScope, IStatementList {

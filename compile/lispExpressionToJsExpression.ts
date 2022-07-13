@@ -5,6 +5,7 @@ import { invariant } from "../syntaxInvariant.ts";
 import { anonymousFunctionDeclaration } from "./anonymousFunctionDeclaration.ts";
 import { binaryOperatorFunctionCallToJsExpression } from "./binaryOperatorFunctionCallToJsExpression.ts";
 import { OUT_ENTRYPOINT_PATH, SPAN } from "./constants.ts";
+import { createIdentifier } from "./createIdentifier.ts";
 import { IBlockStatementList } from "./IBlockStatementList.ts";
 import { ifExpressionToJsExpression } from "./ifExpressionToJsExpression.ts";
 import { isBinaryOperator } from "./isBinaryOperator.ts";
@@ -72,12 +73,7 @@ export function lispExpressionToJsExpression(
 
       return {
         type: "CallExpression",
-        callee: {
-          type: "Identifier",
-          optional: false,
-          span: SPAN,
-          value: funcExpression.name,
-        },
+        callee: createIdentifier(funcExpression.name),
         arguments: expr.elements.slice(1).map((arg): swcType.Argument => ({
           expression: lispExpressionToJsExpression(
             state,
@@ -125,21 +121,11 @@ export function lispExpressionToJsExpression(
     invariant(definition, "undefined symbol", expr);
     if (definition.definitionType === "Const") {
       blockStatementList.tryAddReference(expr.name, expr);
-      return {
-        type: "Identifier",
-        optional: false,
-        span: SPAN,
-        value: expr.name,
-      };
+      return createIdentifier(expr.name);
     }
     if (definition.definitionType === "FunctionParameter") {
       blockStatementList.tryAddReference(expr.name, expr);
-      return {
-        type: "Identifier",
-        optional: false,
-        span: SPAN,
-        value: expr.name,
-      };
+      return createIdentifier(expr.name);
     }
     invariant(
       false,
@@ -195,4 +181,3 @@ function appendStdLibFunctionDeclaration(
     definitionType: "injected_stdlib_function",
   }, functionNameSymbol);
 }
-

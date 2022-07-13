@@ -4,6 +4,7 @@ import { invariant } from "../syntaxInvariant.ts";
 import { BlockStatementList } from "./BlockStatementList.ts";
 import { compileStatement } from "./compileStatement.ts";
 import { SPAN } from "./constants.ts";
+import { createBlock } from "./createBlock.ts";
 import { IBlockStatementList } from "./IBlockStatementList.ts";
 import { lispExpressionToJsExpression } from "./lispExpressionToJsExpression.ts";
 import { ICompilerState } from "./types.ts";
@@ -23,16 +24,8 @@ export function compileIfStatement(
     blockStatementList,
     testExpr,
   );
-  const consequentBlock: swcType.BlockStatement = {
-    type: "BlockStatement",
-    span: SPAN,
-    stmts: [],
-  };
-  const alternateBlock: swcType.BlockStatement = {
-    type: "BlockStatement",
-    span: SPAN,
-    stmts: [],
-  };
+  const consequentBlock: swcType.BlockStatement = createBlock();
+  const alternateBlock: swcType.BlockStatement = createBlock();
   const ifStatement: swcType.IfStatement = {
     type: "IfStatement",
     span: SPAN,

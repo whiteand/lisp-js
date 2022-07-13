@@ -2,6 +2,7 @@ import { IList } from "../ast.ts";
 import { swcType } from "../deps.ts";
 import { invariant } from "../syntaxInvariant.ts";
 import { SPAN } from "./constants.ts";
+import { createIdentifier } from "./createIdentifier.ts";
 import { getMethodNameFromMemberSymbol } from "./getMethodNameFromMemberSymbol.ts";
 import { IBlockStatementList } from "./IBlockStatementList.ts";
 import { lispExpressionToJsExpression } from "./lispExpressionToJsExpression.ts";
@@ -38,12 +39,7 @@ export function methodCall(
     callee: {
       type: "MemberExpression",
       object: objectJsExpr,
-      property: {
-        type: "Identifier",
-        optional: false,
-        span: SPAN,
-        value: getMethodNameFromMemberSymbol(methodExpr),
-      },
+      property: createIdentifier(getMethodNameFromMemberSymbol(methodExpr)),
       span: SPAN,
     },
     arguments: argsJsExpr.map((argJsExpr) => ({

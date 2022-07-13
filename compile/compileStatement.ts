@@ -4,6 +4,7 @@ import { isScopeOperatorName } from "../ScopeOperatorName.ts";
 import { invariant } from "../syntaxInvariant.ts";
 import { compileIfStatement } from "./compileIfStatement.ts";
 import { SPAN } from "./constants.ts";
+import { createIdentifier } from "./createIdentifier.ts";
 import { IBlockStatementList } from "./IBlockStatementList.ts";
 import { isControlFlowOperator } from "./isControlFlowOperator.ts";
 import { lispExpressionToJsExpression } from "./lispExpressionToJsExpression.ts";
@@ -38,12 +39,7 @@ export function compileStatement(
           declarations: [
             {
               definite: false,
-              id: {
-                type: "Identifier",
-                span: SPAN,
-                optional: false,
-                value: symbol.name,
-              },
+              id: createIdentifier(symbol.name),
               type: "VariableDeclarator",
               span: SPAN,
               init: jsValue,
@@ -89,4 +85,3 @@ export function compileStatement(
   }
   invariant(false, "invalid global statement", expr);
 }
-

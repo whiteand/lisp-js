@@ -2,6 +2,8 @@ import { assert } from "../assert.ts";
 import { swcType } from "../deps.ts";
 import { getNodeByType } from "../js-ast/traverse.ts";
 import { DEFAULT_FUNCTION_NAME, SPAN } from "./constants.ts";
+import { createBlock } from "./createBlock.ts";
+import { createIdentifier } from "./createIdentifier.ts";
 import { ICompilerState } from "./types.ts";
 
 export function injectDefaultExportMain(
@@ -15,11 +17,8 @@ export function injectDefaultExportMain(
   const defaultExport = getNodeByType("ExportDefaultDeclaration", module);
   assert(!defaultExport, "default export already exists");
 
-  const mainFunctionBlockStatement: swcType.BlockStatement = {
-    type: "BlockStatement",
-    span: SPAN,
-    stmts: [],
-  };
+  const mainFunctionBlockStatement: swcType.BlockStatement = createBlock();
+
   module.body.push({
     type: "ExportDefaultDeclaration",
     span: SPAN,
@@ -29,12 +28,7 @@ export function injectDefaultExportMain(
       generator: false,
       async: false,
       body: mainFunctionBlockStatement,
-      identifier: {
-        type: "Identifier",
-        optional: false,
-        span: SPAN,
-        value: DEFAULT_FUNCTION_NAME,
-      },
+      identifier: createIdentifier(DEFAULT_FUNCTION_NAME),
       params: [],
     },
   });

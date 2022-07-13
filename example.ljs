@@ -1,4 +1,4 @@
 // Logic
 
 (if true (log "Yes") (log "No"))
-// (log (if true "Yes" "No"))
+(log (if true "Yes" "No"))

@@ -6,6 +6,8 @@ import { invariant } from "../syntaxInvariant.ts";
 import { BlockStatementList } from "./BlockStatementList.ts";
 import { compileStatement } from "./compileStatement.ts";
 import { SPAN } from "./constants.ts";
+import { createBlock } from "./createBlock.ts";
+import { createIdentifier } from "./createIdentifier.ts";
 import { IBlockStatementList } from "./IBlockStatementList.ts";
 import { lispExpressionToJsExpression } from "./lispExpressionToJsExpression.ts";
 import { ICompilerState } from "./types.ts";
@@ -42,11 +44,7 @@ export function anonymousFunctionDeclaration(
     expr,
   );
 
-  const functionBody: swcType.BlockStatement = {
-    type: "BlockStatement",
-    span: SPAN,
-    stmts: [],
-  };
+  const functionBody = createBlock();
 
   const functionNameSymbol: ISymbol = {
     nodeType: "Symbol",
@@ -56,12 +54,9 @@ export function anonymousFunctionDeclaration(
     name: "anonymous",
   };
   functionNameSymbol.name = "_DUMMY_";
-  const functionIdentifierJs: swcType.Identifier = {
-    optional: false,
-    span: SPAN,
-    type: "Identifier",
-    value: "_DUMMY_ID_",
-  };
+  const functionIdentifierJs: swcType.Identifier = createIdentifier(
+    "__DUMMY_ID__",
+  );
   const functionDeclaration: swcType.FunctionDeclaration = {
     type: "FunctionDeclaration",
     async: false,
@@ -71,12 +66,7 @@ export function anonymousFunctionDeclaration(
     generator: false,
     identifier: functionIdentifierJs,
     params: parameters.map((parameter): swcType.Param => ({
-      pat: {
-        type: "Identifier",
-        value: parameter.name,
-        optional: false,
-        span: SPAN,
-      },
+      pat: createIdentifier(parameter.name),
       span: SPAN,
       type: "Parameter",
     })),

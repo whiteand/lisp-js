@@ -60,8 +60,13 @@ interface IAnonymousFunctionDefinition {
   minParametersNumber: number;
 }
 
+type AnonymousDefinition = {
+  definitionType: "IfTestExpression" | "IfResultExpression";
+};
+
 export type TDefinition =
   | IExpressionDefinition
+  | AnonymousDefinition
   | IParameterDefinition
   | IAnonymousFunctionDefinition
   | DefaultFunctionNameDefinition
