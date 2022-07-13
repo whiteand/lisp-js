@@ -29,6 +29,7 @@ Working Examples are in the [examples](https://github.com/whiteand/lisp-js/tree/
 |     observables as first class object      | Not implemented yet |
 |      tail call recursion optimization      | Not implemented yet |
 |            macros as in Clojure            | Not implemented yet |
+|             VS Code extension              | Not implemented yet |
 | Vite plugin for importing .ljs as a module | Not implemented yet |
 
 ## Lisp JS Goals
