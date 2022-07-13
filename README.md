@@ -1,6 +1,6 @@
 # Lisp JS
 
-This is a functional programming language that is inspired by Clojure(or ClojureScript), but with a different flavor.
+This is a functional programming language that is inspired by Clojure(or ClojureScript), but with a different perspective.
 
 ## Lisp JS Roadmap
 
@@ -32,3 +32,39 @@ This is a functional programming language that is inspired by Clojure(or Clojure
 - Functional Language with Immutable Data structures by default
 - Controlled access to the platform feature per module
   - As in lavamoat
+
+## What is the result of compilation
+
+The result of compilation will be the ecma script module that has such shape:
+
+```javascript
+// Pure functions from std lib
+
+export default function MAIN(dependencies) {
+    // module code
+    return {
+        // Exported functions
+    }
+}
+```
+
+Example:
+
+```javascript
+export default function MAIN({ random }) {
+    const randomInt = (max) => Math.floor(random() * max)
+    return {
+        randomInt,
+    }
+}
+```
+
+Example of usage:
+
+```javascript
+import createRandom from './random.ljs'
+
+const random = createRandom({ random: Math.random })
+
+console.log(random.randomInt(100))
+```
