@@ -19,8 +19,8 @@ Working Examples are in the [examples](https://github.com/whiteand/lisp-js/tree/
 |               If expression                |      **Done**       |
 |           constants declaration            |      **Done**       |
 |            function declaration            |      **Done**       |
-|             chain comparisons              |     In Progress     |
-|             equality operator              | Not implemented yet |
+|             chain comparisons              |      **Done**       |
+|             equality operator              |   **In Progress**   |
 |  immutable data structures as in Clojure   | Not implemented yet |
 |              throw expression              | Not implemented yet |
 |          module system as in Deno          | Not implemented yet |
