@@ -26,35 +26,40 @@ export function ifExpressionToJsExpression(
   const placeholder = blockStatementList.appendPlaceholder(expr);
   const resJsId: swcType.Identifier = createIdentifier("_DUMMY_");
   blockStatementList.defer(() => {
-    const testId: swcType.Identifier = createIdentifier(
-      placeholder.defineRandom({
-        definitionType: "IfTestExpression",
-      }),
-    );
+    const testId: swcType.Identifier = testExpr.nodeType === "Symbol"
+      ? createIdentifier(testExpr.name)
+      : createIdentifier(
+        placeholder.defineRandom({
+          definitionType: "IfTestExpression",
+        }),
+      );
     const resJsIdName = placeholder.defineRandom({
       definitionType: "IfResultExpression",
     });
     resJsId.value = resJsIdName;
+    if (testExpr.nodeType !== "Symbol") {
+      placeholder.append({
+        type: "VariableDeclaration",
+        span: SPAN,
+        declare: false,
+        kind: "const",
+        declarations: [
+          {
+            type: "VariableDeclarator",
+            definite: true,
+            id: testId,
+            span: SPAN,
+            init: lispExpressionToJsExpression(state, placeholder, testExpr),
+          },
+        ],
+      });
+    }
+
     placeholder.append({
       type: "VariableDeclaration",
       span: SPAN,
       declare: false,
-      kind: "const",
-      declarations: [
-        {
-          type: "VariableDeclarator",
-          definite: true,
-          id: testId,
-          span: SPAN,
-          init: lispExpressionToJsExpression(state, placeholder, testExpr),
-        },
-      ],
-    });
-    placeholder.append({
-      type: "VariableDeclaration",
-      span: SPAN,
-      declare: false,
-      kind: "const",
+      kind: "let",
       declarations: [
         {
           type: "VariableDeclarator",

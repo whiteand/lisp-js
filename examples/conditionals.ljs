@@ -1,0 +1,4 @@
+// Logic
+
+(if true (log "Yes") (log "No"))
+(const a (if true "Yes" (if false "No" "Yes")))

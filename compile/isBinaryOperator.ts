@@ -7,6 +7,10 @@ const BINARY_OPERATORS_ARR = [
   "/",
   "%",
   "**",
+  ">=",
+  ">",
+  "<",
+  "<=",
   "and",
   "or",
 ] as const;
