@@ -27,7 +27,7 @@ export function renderExpression(expr: LispExpression): string {
     return `${colors.white(expr.name)}`;
   }
   if (expr.nodeType === "String") {
-    return colors.rgb24(expr.value, 0xce9178);
+    return colors.rgb24(`"${expr.value}"`, 0xce9178);
   }
   if (expr.nodeType === "Vector") {
     return `${colors.magenta("[")}${

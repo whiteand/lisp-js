@@ -1,16 +1,13 @@
-import { IList, ISymbol } from "../ast.ts";
+import { IList } from "../ast.ts";
 import { swcType } from "../deps.ts";
 import { isScopeOperatorName } from "../ScopeOperatorName.ts";
 import { invariant } from "../syntaxInvariant.ts";
+import { compileIfStatement } from "./compileIfStatement.ts";
 import { SPAN } from "./constants.ts";
 import { IBlockStatementList } from "./IBlockStatementList.ts";
+import { isControlFlowOperator } from "./isControlFlowOperator.ts";
 import { lispExpressionToJsExpression } from "./lispExpressionToJsExpression.ts";
 import { ICompilerState } from "./types.ts";
-
-function isControlFlowOperator(_: ISymbol) {
-  // TODO: Add control flow operator here
-  return false;
-}
 
 export function compileStatement(
   state: ICompilerState,
@@ -67,6 +64,14 @@ export function compileStatement(
       invariant(false, "Scope operators not supported yet", func);
     }
     if (isControlFlowOperator(func)) {
+      if (func.name === "if") {
+        invariant(
+          elements.length === 4,
+          "(if condition trueValue falseValue) expected",
+          expr,
+        );
+        return compileIfStatement(state, blockStatementList, expr);
+      }
       invariant(false, "Control flow operators not supported", func);
     }
     const jsExpression = lispExpressionToJsExpression(
@@ -84,3 +89,4 @@ export function compileStatement(
   }
   invariant(false, "invalid global statement", expr);
 }
+

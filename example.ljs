@@ -1,9 +1,4 @@
 // Logic
 
-(const a true)
-(const b false)
-(const c (or true false))
-
-(log (and a b))
-(log (or a b))
-(log (or a b c))
+(if true (log "Yes") (log "No"))
+// (log (if true "Yes" "No"))

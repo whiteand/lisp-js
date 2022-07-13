@@ -6,6 +6,7 @@ import { anonymousFunctionDeclaration } from "./anonymousFunctionDeclaration.ts"
 import { binaryOperatorFunctionCallToJsExpression } from "./binaryOperatorFunctionCallToJsExpression.ts";
 import { OUT_ENTRYPOINT_PATH, SPAN } from "./constants.ts";
 import { IBlockStatementList } from "./IBlockStatementList.ts";
+import { ifExpressionToJsExpression } from "./ifExpressionToJsExpression.ts";
 import { isBinaryOperator } from "./isBinaryOperator.ts";
 import { isStdLibFunction } from "./isStdLibFunction.ts";
 import { methodCall } from "./methodCall.ts";
@@ -27,6 +28,9 @@ export function lispExpressionToJsExpression(
       const functionName = funcExpression.name;
       if (functionName === "fn") {
         return anonymousFunctionDeclaration(state, blockStatementList, expr);
+      }
+      if (functionName === "if") {
+        return ifExpressionToJsExpression(state, blockStatementList, expr);
       }
       if (isBinaryOperator(functionName)) {
         return binaryOperatorFunctionCallToJsExpression(
@@ -191,3 +195,4 @@ function appendStdLibFunctionDeclaration(
     definitionType: "injected_stdlib_function",
   }, functionNameSymbol);
 }
+
