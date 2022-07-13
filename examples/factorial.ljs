@@ -1,4 +1,4 @@
-// Logic
+// Factorial
 
 (const dec (
     fn [x]
