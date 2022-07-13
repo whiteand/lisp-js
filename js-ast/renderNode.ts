@@ -1,4 +1,4 @@
-import { print, swcType } from "../deps.ts";
+import { swcType } from "../deps.ts";
 
 /**
  * @param ast
@@ -7,8 +7,9 @@ import { print, swcType } from "../deps.ts";
 export async function renderNode(
   ast: swcType.Program,
 ): Promise<string> {
-  const res = await print(ast, {
-    minify: false,
-  });
-  return res.code || "";
+  // const res = await print(ast, {
+  //   minify: false,
+  // });
+  // return res.code || "";
+  return ''
 }

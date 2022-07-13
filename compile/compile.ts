@@ -1,21 +1,15 @@
 import { LispExpression } from "../ast.ts";
-import { parse, swcType } from "../deps.ts";
 import { Scope } from "../Scope.ts";
 import { invariant } from "../syntaxInvariant.ts";
 import { BlockStatementList } from "./BlockStatementList.ts";
 import { compileStatement } from "./compileStatement.ts";
 import { OUT_ENTRYPOINT_PATH, SPAN } from "./constants.ts";
 import { injectDefaultExportMain } from "./injectDefaultExportMain.ts";
-import { STD } from "./std-code.ts";
 import { IBundleFile, ICompilerState } from "./types.ts";
 
-export async function compile(
+export function compile(
   expression$: Iterable<LispExpression>,
 ): Promise<IBundleFile[]> {
-  const fullStdLibAst = await parse(STD, {
-    syntax: "ecmascript",
-  }) as swcType.Module;
-
   const state: ICompilerState = {
     files: {
       [OUT_ENTRYPOINT_PATH]: {
@@ -28,7 +22,6 @@ export async function compile(
         scope: new Scope(null),
       },
     },
-    fullStdLibAst,
   };
 
   const blockStatement = injectDefaultExportMain(state, OUT_ENTRYPOINT_PATH);
@@ -68,8 +61,8 @@ export async function compile(
 
   blockStatementList.close();
 
-  return [{
+  return Promise.resolve([{
     relativePath: "index.js",
     ast: state.files[OUT_ENTRYPOINT_PATH].ast,
-  }];
+  }]);
 }

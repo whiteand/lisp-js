@@ -5,6 +5,7 @@ import { BlockStatementList } from "./BlockStatementList.ts";
 import { SPAN } from "./constants.ts";
 import { createBlock } from "./createBlock.ts";
 import { createIdentifier } from "./createIdentifier.ts";
+import { declareVar } from "./declareVar.ts";
 import { IBlockStatementList } from "./IBlockStatementList.ts";
 import { lispExpressionToJsExpression } from "./lispExpressionToJsExpression.ts";
 import { ICompilerState } from "./types.ts";
@@ -38,41 +39,19 @@ export function ifExpressionToJsExpression(
     });
     resJsId.value = resJsIdName;
     if (testExpr.nodeType !== "Symbol") {
-      placeholder.append({
-        type: "VariableDeclaration",
-        span: SPAN,
-        declare: false,
-        kind: "const",
-        declarations: [
-          {
-            type: "VariableDeclarator",
-            definite: true,
-            id: testId,
-            span: SPAN,
-            init: lispExpressionToJsExpression(state, placeholder, testExpr),
-          },
-        ],
-      });
+      placeholder.append(
+        declareVar(
+          "const",
+          testId,
+          lispExpressionToJsExpression(state, placeholder, testExpr),
+        ),
+      );
     }
 
-    placeholder.append({
-      type: "VariableDeclaration",
+    placeholder.append(declareVar("let", resJsId, {
+      type: "NullLiteral",
       span: SPAN,
-      declare: false,
-      kind: "let",
-      declarations: [
-        {
-          type: "VariableDeclarator",
-          definite: true,
-          id: resJsId,
-          span: SPAN,
-          init: {
-            type: "NullLiteral",
-            span: SPAN,
-          },
-        },
-      ],
-    });
+    }));
     const consequentBlock = createBlock();
     const alternateBlock = createBlock();
     placeholder.append({

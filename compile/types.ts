@@ -15,5 +15,4 @@ export interface IBundleFileState {
 
 export interface ICompilerState {
   files: Record<string, IBundleFileState>;
-  fullStdLibAst: swcType.Module;
 }

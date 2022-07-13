@@ -151,7 +151,6 @@ function appendStdLibFunctionDeclaration(
   functionNameSymbol: ISymbol,
 ) {
   const file = state.files[filePath];
-  const stdAst = state.fullStdLibAst;
   const program = getNodeByType("Module", file.ast);
   invariant(
     program,
@@ -159,25 +158,44 @@ function appendStdLibFunctionDeclaration(
     functionNameSymbol,
   );
 
-  const stdFuncDeclaration = querySelector<swcType.FunctionDeclaration>(
-    (node): node is swcType.FunctionDeclaration => {
-      if (node.type !== "FunctionDeclaration") {
-        return false;
-      }
-      if (node.identifier.value !== functionNameSymbol.name) {
-        return false;
-      }
-      return true;
-    },
-    stdAst,
-  );
-  invariant(
-    stdFuncDeclaration,
-    "There is no such standard library function",
-    functionNameSymbol,
-  );
-  program.body.unshift(stdFuncDeclaration);
+  const importDeclaration = appendImportStdDeclaration(program);
+
+  importDeclaration.specifiers.push({
+    type: "ImportSpecifier",
+    span: SPAN,
+    imported: null,
+    local: createIdentifier(functionNameSymbol.name),
+  });
+
   file.scope.define(functionNameSymbol.name, {
-    definitionType: "injected_stdlib_function",
+    definitionType: "imported_std_function",
   }, functionNameSymbol);
 }
+
+function appendImportStdDeclaration(
+  program: swcType.Module,
+): swcType.ImportDeclaration {
+  const importDeclaration = querySelector<swcType.ImportDeclaration>(
+    (node): node is swcType.ImportDeclaration =>
+      node.type === "ImportDeclaration" && node.source.value === STD_LIB_PATH,
+    program,
+  );
+  if (importDeclaration) return importDeclaration;
+
+  const newImportDeclaration: swcType.ImportDeclaration = {
+    type: "ImportDeclaration",
+    source: {
+      hasEscape: false,
+      span: SPAN,
+      type: "StringLiteral",
+      value: STD_LIB_PATH,
+    },
+    span: SPAN,
+    specifiers: [],
+  };
+  program.body.unshift(newImportDeclaration);
+
+  return newImportDeclaration;
+}
+
+const STD_LIB_PATH = "./std.js";

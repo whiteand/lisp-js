@@ -12,10 +12,13 @@ export async function parseArguments(): Promise<
     command,
     entrypointFilePath: "",
     colors: false,
+    stdLibPath: "",
     showStack: false,
     measurePerformance: false,
   };
-  for (const arg of Deno.args.slice(1)) {
+  let i = 1;
+  while (i < Deno.args.length) {
+    const arg = Deno.args[i++];
     if (arg === "--colors") {
       args.colors = true;
       continue;
@@ -32,7 +35,15 @@ export async function parseArguments(): Promise<
       logHelp();
       continue;
     }
+    if (arg === "--std") {
+      args.stdLibPath = Deno.args[i++];
+    }
     args.entrypointFilePath = arg;
+  }
+  if (!args.stdLibPath || !(await fileExists(args.stdLibPath))) {
+    console.log("std lib was not provided via --std parameter");
+    console.log(`passed arg: "${args.stdLibPath}"`);
+    Deno.exit(1);
   }
   if (!args.entrypointFilePath) {
     console.log("entry point is not provided");

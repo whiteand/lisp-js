@@ -5,6 +5,7 @@ export type TNode =
   | swcType.Expression
   | swcType.Module
   | swcType.Statement
+  | swcType.VariableDeclarator
   | swcType.ModuleItem
   | swcType.Super
   | swcType.MemberExpression

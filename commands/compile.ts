@@ -1,12 +1,11 @@
 import { compile as compileStep } from "../compile/compile.ts";
-import { IBundleFile } from "../compile/types.ts";
 import { ColorsContext } from "../contexts/colors.ts";
 import { ACTUAL_TIMER, NO_TIMER, TimerContext } from "../contexts/timer.ts";
 import { colors as actualColors } from "../deps.ts";
 import { getLexems } from "../getLexems/getLexems.ts";
 import { getLocatedCharsIterator } from "../getLocatedCharsIterator.ts";
 import { ICompilerArgs } from "../ICompilerArgs.ts";
-import { renderNode } from "../js-ast/renderNode.ts";
+import { slowRenderNode } from "../js-ast/slowRenderNode.ts";
 import { noColors } from "../noColors.ts";
 import { parseExpressions } from "../parseExpressions/parseExpressions.ts";
 import { printCompilerError } from "./printCompilerError.ts";
@@ -46,7 +45,7 @@ export async function compile(
     timer.finished("bundleFile$ created");
     Deno.mkdir("./dist", { recursive: true });
     for (const bundleFile of bundleFiles) {
-      const code = await renderNode(bundleFile.ast);
+      const code = await slowRenderNode(bundleFile.ast);
       printBundleFilesToConsole(bundleFile.relativePath, code);
       saveBundleFilesToHarddrive(bundleFile.relativePath, code);
     }

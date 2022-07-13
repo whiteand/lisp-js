@@ -5,6 +5,7 @@ import { invariant } from "../syntaxInvariant.ts";
 import { compileIfStatement } from "./compileIfStatement.ts";
 import { SPAN } from "./constants.ts";
 import { createIdentifier } from "./createIdentifier.ts";
+import { declareVar } from "./declareVar.ts";
 import { IBlockStatementList } from "./IBlockStatementList.ts";
 import { isControlFlowOperator } from "./isControlFlowOperator.ts";
 import { lispExpressionToJsExpression } from "./lispExpressionToJsExpression.ts";
@@ -31,21 +32,6 @@ export function compileStatement(
           blockStatementList,
           value,
         );
-        const constStatement: swcType.Statement = {
-          type: "VariableDeclaration",
-          span: SPAN,
-          kind: "const",
-          declare: false,
-          declarations: [
-            {
-              definite: false,
-              id: createIdentifier(symbol.name),
-              type: "VariableDeclarator",
-              span: SPAN,
-              init: jsValue,
-            },
-          ],
-        };
 
         blockStatementList.define(symbol.name, {
           definitionType: "Const",
@@ -53,7 +39,11 @@ export function compileStatement(
           value,
         }, expr);
 
-        blockStatementList.append(constStatement);
+        blockStatementList.append(declareVar(
+          "const",
+          createIdentifier(symbol.name),
+          jsValue,
+        ));
 
         return;
       }

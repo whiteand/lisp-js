@@ -31,8 +31,8 @@ export interface IScope extends ITree<IScope> {
   tryAddReference(symbol: string, expression: LispExpression): boolean;
 }
 
-interface InjectedFromStdLib {
-  definitionType: "injected_stdlib_function";
+interface ImportedStdFunction {
+  definitionType: "imported_std_function";
 }
 
 interface IExpressionDefinition {
@@ -61,7 +61,11 @@ interface IAnonymousFunctionDefinition {
 }
 
 type AnonymousDefinition = {
-  definitionType: "IfTestExpression" | "IfResultExpression";
+  definitionType:
+    | "IfTestExpression"
+    | "IfResultExpression"
+    | "ChainComparisonParam"
+    | "ChainComparisonResult";
 };
 
 export type TDefinition =
@@ -71,7 +75,7 @@ export type TDefinition =
   | IAnonymousFunctionDefinition
   | DefaultFunctionNameDefinition
   | IConstDefinition
-  | InjectedFromStdLib;
+  | ImportedStdFunction;
 
 export class Scope implements IScope {
   public readonly parent: IScope | null;
@@ -176,7 +180,7 @@ export class Scope implements IScope {
         declaration,
       );
     }
-    if (previousDefinition.definitionType === "injected_stdlib_function") {
+    if (previousDefinition.definitionType === "imported_std_function") {
       throw LispSyntaxError.fromExpression(
         `"${name}" is name reserved for std library.`,
         declaration,

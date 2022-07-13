@@ -5,8 +5,9 @@
 (const a 1)
 (const b 2)
 (const c 3)
+(const d 4)
 
-(log (<= a b))
 (log (<= a b c))
+(log (<= a b c d))
 (log (or a b))
 (log (or a b c))

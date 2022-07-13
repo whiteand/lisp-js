@@ -73,6 +73,7 @@ export class PlaceholderList implements IScope, IStatementList {
   }
   appendPlaceholder(expression: LispExpression): IPlaceholderList {
     const placeholder = new PlaceholderList(this.scope, this, expression);
+    // deno-lint-ignore no-explicit-any
     this.append(placeholder as any);
     return placeholder;
   }

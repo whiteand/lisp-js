@@ -1,8 +1,8 @@
 {
   "tasks": {
-    "build": "deno compile --allow-net --allow-write --allow-read ljs.ts",
-    "dev": "npx nodemon --ext .ts,.ljs --exec \"deno task build && ljs run --colors --measure-performance --show-stack test.ljs\"",
-    "dev:compile": "npx nodemon --ext .ts,.ljs --exec \"deno task build && ljs compile --measure-performance --colors --show-stack test.ljs\""
+    "build": "deno compile -A ljs.ts",
+    "dev": "npx nodemon --ext .ts,.ljs --exec \"deno task build && ljs run --std std/std.js --colors --measure-performance --show-stack test.ljs\"",
+    "dev:compile": "npx nodemon --ext .ts,.ljs --exec \"deno task build && ljs compile --std std/std.js --measure-performance --colors --show-stack test.ljs\""
   },
   "compilerOptions": {
     "strict": true

@@ -135,6 +135,19 @@ export function forEachNode(
     }
     if (node.type === "StringLiteral") continue;
     if (node.type === "NumericLiteral") continue;
+    if (node.type === "ExportDefaultDeclaration") {
+      nodes.push(node.decl);
+      continue;
+    }
+    if (node.type === "VariableDeclaration") {
+      nodes.push(...node.declarations);
+      continue;
+    }
+    if (node.type === "VariableDeclarator") {
+      if (node.init) nodes.push(node.init);
+      nodes.push(node.id);
+      continue;
+    }
 
     throw new Error("Not handled node type: " + JSON.stringify(node));
   }

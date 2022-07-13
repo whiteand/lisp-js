@@ -48,7 +48,7 @@ export function evaluate(
     const definition = scope.getDefinition(e.name);
     invariant(definition, "Undefined symbol", e);
     invariant(
-      definition.definitionType !== "injected_stdlib_function",
+      definition.definitionType !== "imported_std_function",
       "Unexpected calculation of injected_function",
       e,
     );
