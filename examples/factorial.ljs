@@ -1,0 +1,13 @@
+// Logic
+
+(const dec (
+    fn [x]
+    (- x 1)
+))
+
+(const factorial (
+    fn [n]
+    (if (<= n 1) 1 (* n (factorial (dec n))))
+))
+
+(log (factorial 10))

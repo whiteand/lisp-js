@@ -14,15 +14,41 @@ DEFAULT_BINARY_OPERATOR_VALUE.set("*", 0);
 DEFAULT_BINARY_OPERATOR_VALUE.set("/", 1);
 DEFAULT_BINARY_OPERATOR_VALUE.set("**", 1);
 
+function isComparisonOperator(
+  operator: BinaryOperatorString,
+): operator is "<" | ">" | "<=" | ">=" {
+  return operator === "<" ||
+    operator === ">" || operator === "<=" || operator === ">=";
+}
+
 export function binaryOperatorFunctionCallToJsExpression(
   state: ICompilerState,
   blockStatementList: IBlockStatementList,
   expr: IList,
 ): swcType.Expression {
-  invariant(expr.elements[0].nodeType === "Symbol", "impossible state", expr);
-  const lispOperator = expr.elements[0].name;
+  const lispOperatorSymbol = expr.elements[0];
+  invariant(lispOperatorSymbol.nodeType === "Symbol", "impossible state", expr);
+  const lispOperator = lispOperatorSymbol.name;
   invariant(isBinaryOperator(lispOperator), "impossible state", expr);
+  if (expr.elements.length === 1) {
+    const defaultValue = DEFAULT_BINARY_OPERATOR_VALUE.get(lispOperator);
+    invariant(
+      defaultValue != null,
+      "this operator should have at least one argument",
+      expr,
+    );
+    return {
+      type: "NumericLiteral",
+      span: SPAN,
+      value: defaultValue,
+    };
+  }
   if (expr.elements.length === 2) {
+    invariant(
+      !isComparisonOperator(lispOperator),
+      "this operator requires at least 2 arguments",
+      expr,
+    );
     if (lispOperator === "/") {
       return {
         type: "BinaryExpression",
@@ -47,19 +73,30 @@ export function binaryOperatorFunctionCallToJsExpression(
       expr.elements[1],
     );
   }
-  if (expr.elements.length === 1) {
-    const defaultValue = DEFAULT_BINARY_OPERATOR_VALUE.get(lispOperator);
-    invariant(
-      defaultValue != null,
-      "this operator should have at least one argument",
-      expr,
-    );
-    return {
-      type: "NumericLiteral",
+
+  if (expr.elements.length <= 3) {
+    // Just 2 arguments, like (+ 1 2)
+    const root: swcType.Expression = {
+      type: "BinaryExpression",
       span: SPAN,
-      value: defaultValue,
+      operator: operatorToJsOperator(lispOperator),
+      left: lispExpressionToJsExpression(
+        state,
+        blockStatementList,
+        expr.elements[1],
+      ),
+      right: lispExpressionToJsExpression(
+        state,
+        blockStatementList,
+        expr.elements[2],
+      ),
     };
+    return root;
   }
+  if (isComparisonOperator(lispOperator)) {
+    invariant(false, "chain comparisons not implemented yet", expr);
+  }
+
   const operator = operatorToJsOperator(lispOperator);
 
   const root: swcType.Expression = {

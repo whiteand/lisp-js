@@ -1,14 +1,12 @@
 // Logic
 
-(const dec (
-    fn [x]
-    (- x 1)
-))
+// Logic
 
-(const factorial (
-    fn [n]
-    (const less1 (<= n 1))
-    (if less1 1 (* n (factorial (dec n))))
-))
+(const a 1)
+(const b 2)
+(const c 3)
 
-(log (factorial 10))
+(log (<= a b))
+(log (<= a b c))
+(log (or a b))
+(log (or a b c))
