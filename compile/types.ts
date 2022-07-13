@@ -1,7 +1,7 @@
 import { swcType } from "../deps.ts";
 import { IScope } from "../Scope.ts";
 
-export type StdLibFunctionName = "log";
+export type StdLibFunctionName = "log" | "get" | "throw";
 
 export interface IBundleFile {
   relativePath: string;

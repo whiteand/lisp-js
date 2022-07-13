@@ -1,16 +1,8 @@
-// Logic
+// Panic
 
-// Logic
-
-(const a 1)
-(const b 2)
-(const c 3)
-(const d 4)
-
-(log (<= a b c))
-(log (< a b c d))
-(log (> a b c d))
-(log (>= a 10 c d "10" ))
-(log (>= a (+ a 1) (+ a 2)))
-(log (or a b))
-(log (or a b c))
+(const count-down (fn [n]
+    (if (> n 0)
+        ((fn [] (log n) (count-down (- n 1))))
+        (panic "Something")
+    )
+))

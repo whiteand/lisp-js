@@ -20,9 +20,10 @@ Working Examples are in the [examples](https://github.com/whiteand/lisp-js/tree/
 |           constants declaration            |      **Done**       |
 |            function declaration            |      **Done**       |
 |             chain comparisons              |      **Done**       |
-|             equality operator              |   **In Progress**   |
+|              panic expression              |   **In progress**   |
+|                    iife                    |   **In progress**   |
+|             equality operator              | Not implemented yet |
 |  immutable data structures as in Clojure   | Not implemented yet |
-|              throw expression              | Not implemented yet |
 |          module system as in Deno          | Not implemented yet |
 |     utility functions for collections      | Not implemented yet |
 |     observables as first class object      | Not implemented yet |

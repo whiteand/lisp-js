@@ -16,3 +16,7 @@ export function get(prop, obj) {
   if (obj == null) return undefined;
   return obj[prop];
 }
+
+export function panic(error) {
+  throw error
+}

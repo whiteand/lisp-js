@@ -84,6 +84,7 @@ export function lispExpressionToJsExpression(
         span: SPAN,
       };
     }
+    invariant(false, "Cannot call non-symbol", funcExpression);
   }
   if (expr.nodeType === "Number") {
     return {

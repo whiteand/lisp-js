@@ -49,6 +49,7 @@ export async function compile(
       printBundleFilesToConsole(bundleFile.relativePath, code);
       saveBundleFilesToHarddrive(bundleFile.relativePath, code);
     }
+    await Deno.copyFile(compilerArgs.stdLibPath, "./dist/std.js");
   } catch (error) {
     printCompilerError(compilerArgs, error);
   } finally {
