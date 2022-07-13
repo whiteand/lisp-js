@@ -11,6 +11,7 @@ import { ifExpressionToJsExpression } from "./ifExpressionToJsExpression.ts";
 import { isBinaryOperator } from "./isBinaryOperator.ts";
 import { isStdLibFunction } from "./isStdLibFunction.ts";
 import { methodCall } from "./methodCall.ts";
+import { symbolToId } from "./symbolToIdentifier.ts";
 import { ICompilerState } from "./types.ts";
 
 export function lispExpressionToJsExpression(
@@ -73,7 +74,7 @@ export function lispExpressionToJsExpression(
 
       return {
         type: "CallExpression",
-        callee: createIdentifier(funcExpression.name),
+        callee: createIdentifier(symbolToId(funcExpression.name)),
         arguments: expr.elements.slice(1).map((arg): swcType.Argument => ({
           expression: lispExpressionToJsExpression(
             state,
@@ -122,11 +123,11 @@ export function lispExpressionToJsExpression(
     invariant(definition, "undefined symbol", expr);
     if (definition.definitionType === "Const") {
       blockStatementList.tryAddReference(expr.name, expr);
-      return createIdentifier(expr.name);
+      return createIdentifier(symbolToId(expr.name));
     }
     if (definition.definitionType === "FunctionParameter") {
       blockStatementList.tryAddReference(expr.name, expr);
-      return createIdentifier(expr.name);
+      return createIdentifier(symbolToId(expr.name));
     }
     invariant(
       false,
@@ -165,7 +166,7 @@ function appendStdLibFunctionDeclaration(
     type: "ImportSpecifier",
     span: SPAN,
     imported: null,
-    local: createIdentifier(functionNameSymbol.name),
+    local: createIdentifier(symbolToId(functionNameSymbol.name)),
   });
 
   file.scope.define(functionNameSymbol.name, {

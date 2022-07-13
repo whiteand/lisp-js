@@ -26,8 +26,11 @@ export function forEachNode(
   cb: (node: TNode) => true | void,
 ): void {
   const nodes: TNode[] = [rootNode];
+  const visited = new Set()
   while (nodes.length > 0) {
     const node = nodes.pop()!;
+    if (visited.has(node)) return
+    visited.add(node)
     const shouldStop = cb(node);
 
     if (shouldStop === true) {

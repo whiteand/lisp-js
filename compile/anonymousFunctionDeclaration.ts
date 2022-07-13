@@ -10,6 +10,7 @@ import { createBlock } from "./createBlock.ts";
 import { createIdentifier } from "./createIdentifier.ts";
 import { IBlockStatementList } from "./IBlockStatementList.ts";
 import { lispExpressionToJsExpression } from "./lispExpressionToJsExpression.ts";
+import { symbolToId } from "./symbolToIdentifier.ts";
 import { ICompilerState } from "./types.ts";
 
 export function anonymousFunctionDeclaration(
@@ -66,7 +67,7 @@ export function anonymousFunctionDeclaration(
     generator: false,
     identifier: functionIdentifierJs,
     params: parameters.map((parameter): swcType.Param => ({
-      pat: createIdentifier(parameter.name),
+      pat: createIdentifier(symbolToId(parameter.name)),
       span: SPAN,
       type: "Parameter",
     })),

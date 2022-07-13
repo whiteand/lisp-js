@@ -3,11 +3,12 @@ import { swcType } from "../deps.ts";
 import { invariant } from "../syntaxInvariant.ts";
 import { SPAN } from "./constants.ts";
 import { createIdentifier } from "./createIdentifier.ts";
+import { declareVar } from "./declareVar.ts";
 import { IBlockStatementList } from "./IBlockStatementList.ts";
 import { BinaryOperatorString, isBinaryOperator } from "./isBinaryOperator.ts";
 import { lispExpressionToJsExpression } from "./lispExpressionToJsExpression.ts";
+import { symbolToId } from "./symbolToIdentifier.ts";
 import { ICompilerState } from "./types.ts";
-import { declareVar } from "./declareVar.ts";
 
 const DEFAULT_BINARY_OPERATOR_VALUE = new Map<string, number>();
 DEFAULT_BINARY_OPERATOR_VALUE.set("+", 0);
@@ -106,7 +107,7 @@ export function binaryOperatorFunctionCallToJsExpression(
         const param = elements[i];
         if (!param) continue;
         if (param.nodeType === "Symbol") {
-          paramsJs.push(createIdentifier(param.name));
+          paramsJs.push(createIdentifier(symbolToId(param.name)));
         } else if (param.nodeType === "Number") {
           paramsJs.push({
             type: "NumericLiteral",

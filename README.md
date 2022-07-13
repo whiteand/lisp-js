@@ -20,7 +20,7 @@ Working Examples are in the [examples](https://github.com/whiteand/lisp-js/tree/
 |           constants declaration            |      **Done**       |
 |            function declaration            |      **Done**       |
 |             chain comparisons              |      **Done**       |
-|              panic expression              |   **In progress**   |
+|              panic expression              |      **Done**       |
 |                    iife                    |   **In progress**   |
 |             equality operator              | Not implemented yet |
 |  immutable data structures as in Clojure   | Not implemented yet |

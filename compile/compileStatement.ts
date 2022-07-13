@@ -9,6 +9,7 @@ import { declareVar } from "./declareVar.ts";
 import { IBlockStatementList } from "./IBlockStatementList.ts";
 import { isControlFlowOperator } from "./isControlFlowOperator.ts";
 import { lispExpressionToJsExpression } from "./lispExpressionToJsExpression.ts";
+import { symbolToId } from "./symbolToIdentifier.ts";
 import { ICompilerState } from "./types.ts";
 
 export function compileStatement(
@@ -41,7 +42,7 @@ export function compileStatement(
 
         blockStatementList.append(declareVar(
           "const",
-          createIdentifier(symbol.name),
+          createIdentifier(symbolToId(symbol.name)),
           jsValue,
         ));
 
