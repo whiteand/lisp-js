@@ -101,22 +101,39 @@ export function binaryOperatorFunctionCallToJsExpression(
     const placeholder = blockStatementList.appendPlaceholder(expr);
     const resJs = createIdentifier("_DUMMY_RES_");
     blockStatementList.defer(() => {
-      const paramsJs: swcType.Identifier[] = [];
+      const paramsJs: swcType.Expression[] = [];
       for (let i = 1; i < elements.length; i++) {
         const param = elements[i];
         if (!param) continue;
-        const paramName = placeholder.defineRandom({
-          definitionType: "ChainComparisonParam",
-        });
-        const paramJs = createIdentifier(paramName);
-        paramsJs.push(paramJs);
-        placeholder.append(
-          declareVar(
-            "const",
-            paramJs,
-            lispExpressionToJsExpression(state, placeholder, param),
-          ),
-        );
+        if (param.nodeType === "Symbol") {
+          paramsJs.push(createIdentifier(param.name));
+        } else if (param.nodeType === "Number") {
+          paramsJs.push({
+            type: "NumericLiteral",
+            span: SPAN,
+            value: param.value,
+          });
+        } else if (param.nodeType === "String") {
+          paramsJs.push({
+            type: "StringLiteral",
+            span: SPAN,
+            value: param.value,
+            hasEscape: param.hasEscape,
+          });
+        } else {
+          const paramName = placeholder.defineRandom({
+            definitionType: "ChainComparisonParam",
+          });
+          const paramJs = createIdentifier(paramName);
+          paramsJs.push(paramJs);
+          placeholder.append(
+            declareVar(
+              "const",
+              paramJs,
+              lispExpressionToJsExpression(state, placeholder, param),
+            ),
+          );
+        }
       }
       const resName = placeholder.defineRandom({
         definitionType: "ChainComparisonResult",
@@ -150,20 +167,20 @@ export function binaryOperatorFunctionCallToJsExpression(
           right: rightParam,
         };
         currentExpr.left = {
-          type: 'BinaryExpression',
+          type: "BinaryExpression",
           span: SPAN,
-          operator: '&&',
+          operator: "&&",
           left: {
-            type: 'BooleanLiteral',
+            type: "BooleanLiteral",
             value: true,
             span: SPAN,
           },
           right: {
-            type: 'BooleanLiteral',
+            type: "BooleanLiteral",
             value: true,
-            span: SPAN
-          }
-        }
+            span: SPAN,
+          },
+        };
         currentExpr = currentExpr.left;
       }
       currentExpr.right = {
@@ -172,14 +189,14 @@ export function binaryOperatorFunctionCallToJsExpression(
         operator,
         right: paramsJs[rightInd--],
         left: paramsJs[rightInd],
-      }
+      };
       currentExpr.left = {
         type: "BinaryExpression",
         span: SPAN,
         operator,
         right: paramsJs[rightInd--],
         left: paramsJs[rightInd],
-      }
+      };
 
       placeholder.append(
         declareVar("const", resJs, rootExpression),
