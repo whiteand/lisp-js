@@ -4,7 +4,7 @@ This is a functional programming language that is inspired by Clojure(or Clojure
 
 ## Examples of Code
 
-Examples which already work is in the [examples](https://github.com/whiteand/lisp-js/tree/main/examples) folder
+Working Examples are in the [examples](https://github.com/whiteand/lisp-js/tree/main/examples) folder
 
 ## Lisp JS Roadmap
 
