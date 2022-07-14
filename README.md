@@ -21,8 +21,8 @@ Working Examples are in the [examples](https://github.com/whiteand/lisp-js/tree/
 |            function declaration            |      **Done**       |
 |             chain comparisons              |      **Done**       |
 |              panic expression              |      **Done**       |
-|                    iife                    |   **In progress**   |
-|             equality operator              | Not implemented yet |
+|                    iife                    |      **Done**       |
+|             equality operator              |      **Done**       |
 |  immutable data structures as in Clojure   | Not implemented yet |
 |          module system as in Deno          | Not implemented yet |
 |     utility functions for collections      | Not implemented yet |

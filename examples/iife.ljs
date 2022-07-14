@@ -1,0 +1,4 @@
+// IIFE
+
+(const x 1)
+((fn [x] (log x) ) x)

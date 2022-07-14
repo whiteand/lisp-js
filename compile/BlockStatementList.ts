@@ -26,7 +26,7 @@ export class PlaceholderList implements IPlaceholderList {
     this.hoistPos = 0;
     this.deferred = [];
   }
-  
+
   get expression(): LispExpression {
     return this._expr;
   }
@@ -99,6 +99,7 @@ export class PlaceholderList implements IPlaceholderList {
     this.commit();
   }
   private commit(): void {
+    // deno-lint-ignore no-explicit-any
     this.parentList.replace(this as any, this.statements);
   }
   private callDeferred(): void {
@@ -159,7 +160,11 @@ export class BlockStatementList implements IBlockStatementList {
       const st = this.blockStatement.stmts[i];
       if (!st) continue;
       if (st instanceof PlaceholderList) {
-        invariant(false, "All placholders should be removed.", (st as any).expression);
+        invariant(
+          false,
+          "All placholders should be removed.",
+          (st as any).expression,
+        );
       }
     }
   }

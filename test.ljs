@@ -1,4 +1,10 @@
-// Panic
+// IIFE
 
 (const x 1)
-((fn [x] (log x) ) x)
+(const y 2)
+(log (= x y))
+(log (!= x y))
+(log (!= x 1))
+(log (!= x "1"))
+(log (= x "1"))
+(log (= x 1))

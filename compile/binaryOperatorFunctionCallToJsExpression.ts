@@ -1,9 +1,10 @@
-import { IList } from "../ast.ts";
+import { IList, LispExpression } from "../ast.ts";
 import { swcType } from "../deps.ts";
 import { invariant } from "../syntaxInvariant.ts";
 import { SPAN } from "./constants.ts";
 import { createIdentifier } from "./createIdentifier.ts";
 import { declareVar } from "./declareVar.ts";
+import { equalityOperator } from "./equalityOperator.ts";
 import { IBlockStatementList } from "./IBlockStatementList.ts";
 import { BinaryOperatorString, isBinaryOperator } from "./isBinaryOperator.ts";
 import { lispExpressionToJsExpression } from "./lispExpressionToJsExpression.ts";
@@ -24,6 +25,16 @@ function isComparisonOperator(
     operator === ">" || operator === "<=" || operator === ">=";
 }
 
+function isPrimitive(
+  expr: LispExpression,
+): expr is LispExpression {
+  if (expr.nodeType === "BigInt") return true;
+  if (expr.nodeType === "Number") return true;
+  if (expr.nodeType === "String") return true;
+  if (expr.nodeType === "Void") return true;
+  return false;
+}
+
 export function binaryOperatorFunctionCallToJsExpression(
   state: ICompilerState,
   blockStatementList: IBlockStatementList,
@@ -34,6 +45,63 @@ export function binaryOperatorFunctionCallToJsExpression(
   invariant(lispOperatorSymbol.nodeType === "Symbol", "impossible state", expr);
   const lispOperator = lispOperatorSymbol.name;
   invariant(isBinaryOperator(lispOperator), "impossible state", expr);
+  if (lispOperator === "=") {
+    invariant(elements.length === 3, "= takes two arguments", expr);
+    if (isPrimitive(elements[1]) || isPrimitive(elements[2])) {
+      return {
+        type: "BinaryExpression",
+        span: SPAN,
+        operator: "===",
+        left: lispExpressionToJsExpression(
+          state,
+          blockStatementList,
+          elements[1],
+        ),
+        right: lispExpressionToJsExpression(
+          state,
+          blockStatementList,
+          elements[2],
+        ),
+      };
+    }
+    return equalityOperator(state, blockStatementList, expr);
+  }
+  if (lispOperator === "!=") {
+    invariant(elements.length === 3, "= takes two arguments", expr);
+    if (isPrimitive(elements[1]) || isPrimitive(elements[2])) {
+      return {
+        type: "BinaryExpression",
+        span: SPAN,
+        operator: "!==",
+        left: lispExpressionToJsExpression(
+          state,
+          blockStatementList,
+          elements[1],
+        ),
+        right: lispExpressionToJsExpression(
+          state,
+          blockStatementList,
+          elements[2],
+        ),
+      };
+    }
+    return lispExpressionToJsExpression(state, blockStatementList, {
+      start: expr.start,
+      end: expr.end,
+      nodeType: "List",
+      elements: [
+        { ...lispOperatorSymbol, nodeType: "Symbol", name: "not" },
+        {
+          ...expr,
+          nodeType: "List",
+          elements: [
+            { ...lispOperatorSymbol, name: "=" },
+            ...expr.elements.slice(1),
+          ],
+        },
+      ],
+    });
+  }
   const operator = operatorToJsOperator(lispOperator);
   if (elements.length === 1) {
     const defaultValue = DEFAULT_BINARY_OPERATOR_VALUE.get(lispOperator);
@@ -267,5 +335,7 @@ function operatorToJsOperator(
 ): swcType.BinaryOperator {
   if (operator === "and") return "&&";
   if (operator === "or") return "||";
+  if (operator === "!=") return "!==";
+  if (operator === "=") return "===";
   return operator;
 }

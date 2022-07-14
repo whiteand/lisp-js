@@ -7,6 +7,7 @@ import { SPAN } from "./constants.ts";
 import { createIdentifier } from "./createIdentifier.ts";
 import { declareVar } from "./declareVar.ts";
 import { IBlockStatementList } from "./IBlockStatementList.ts";
+import { isBinaryOperator } from "./isBinaryOperator.ts";
 import { isControlFlowOperator } from "./isControlFlowOperator.ts";
 import { lispExpressionToJsExpression } from "./lispExpressionToJsExpression.ts";
 import { symbolToId } from "./symbolToIdentifier.ts";
@@ -27,6 +28,11 @@ export function compileStatement(
         invariant(elements.length === 3, "const takes two arguments", expr);
         const symbol = elements[1];
         invariant(symbol.nodeType === "Symbol", "symbol expected", symbol);
+        invariant(
+          !isBinaryOperator(symbol.name),
+          "It is binary operator reserved by the language",
+          symbol,
+        );
         const value = elements[2];
         const jsValue = lispExpressionToJsExpression(
           state,
@@ -79,15 +85,21 @@ export function compileStatement(
   invariant(func.nodeType !== "Void", "Void is not callable", func);
   invariant(func.nodeType !== "String", "String is not callable", func);
   blockStatementList.append({
-    type: 'ExpressionStatement',
+    type: "ExpressionStatement",
     span: SPAN,
     expression: {
-      type: 'CallExpression',
+      type: "CallExpression",
       span: SPAN,
       callee: lispExpressionToJsExpression(state, blockStatementList, func),
       arguments: elements.slice(1).map(
-        (arg) => ({ expression: lispExpressionToJsExpression(state, blockStatementList, arg) })
+        (arg) => ({
+          expression: lispExpressionToJsExpression(
+            state,
+            blockStatementList,
+            arg,
+          ),
+        }),
       ),
     },
-  })
+  });
 }

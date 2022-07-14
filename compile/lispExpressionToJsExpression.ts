@@ -1,8 +1,8 @@
-import { ISymbol, LispExpression } from "../ast.ts";
+import { LispExpression } from "../ast.ts";
 import { swcType } from "../deps.ts";
-import { getNodeByType, querySelector } from "../js-ast/traverse.ts";
 import { invariant } from "../syntaxInvariant.ts";
 import { anonymousFunctionDeclaration } from "./anonymousFunctionDeclaration.ts";
+import { appendStdLibFunctionDeclaration } from "./appendStdLibFunctionDeclaration.ts";
 import { binaryOperatorFunctionCallToJsExpression } from "./binaryOperatorFunctionCallToJsExpression.ts";
 import { OUT_ENTRYPOINT_PATH, SPAN } from "./constants.ts";
 import { createIdentifier } from "./createIdentifier.ts";
@@ -33,6 +33,18 @@ export function lispExpressionToJsExpression(
       }
       if (functionName === "if") {
         return ifExpressionToJsExpression(state, blockStatementList, expr);
+      }
+      if (functionName === "not") {
+        return {
+          type: "UnaryExpression",
+          argument: lispExpressionToJsExpression(
+            state,
+            blockStatementList,
+            expr.elements[1],
+          ),
+          operator: "!",
+          span: SPAN,
+        };
       }
       if (isBinaryOperator(functionName)) {
         return binaryOperatorFunctionCallToJsExpression(
@@ -146,58 +158,3 @@ export function lispExpressionToJsExpression(
   }
   invariant(false, "cannot compile to js", expr);
 }
-
-function appendStdLibFunctionDeclaration(
-  state: ICompilerState,
-  filePath: string,
-  functionNameSymbol: ISymbol,
-) {
-  const file = state.files[filePath];
-  const program = getNodeByType("Module", file.ast);
-  invariant(
-    program,
-    "cannot find program node in std lib file",
-    functionNameSymbol,
-  );
-
-  const importDeclaration = appendImportStdDeclaration(program);
-
-  importDeclaration.specifiers.push({
-    type: "ImportSpecifier",
-    span: SPAN,
-    imported: null,
-    local: createIdentifier(symbolToId(functionNameSymbol.name)),
-  });
-
-  file.scope.define(functionNameSymbol.name, {
-    definitionType: "imported_std_function",
-  }, functionNameSymbol);
-}
-
-function appendImportStdDeclaration(
-  program: swcType.Module,
-): swcType.ImportDeclaration {
-  const importDeclaration = querySelector<swcType.ImportDeclaration>(
-    (node): node is swcType.ImportDeclaration =>
-      node.type === "ImportDeclaration" && node.source.value === STD_LIB_PATH,
-    program,
-  );
-  if (importDeclaration) return importDeclaration;
-
-  const newImportDeclaration: swcType.ImportDeclaration = {
-    type: "ImportDeclaration",
-    source: {
-      hasEscape: false,
-      span: SPAN,
-      type: "StringLiteral",
-      value: STD_LIB_PATH,
-    },
-    span: SPAN,
-    specifiers: [],
-  };
-  program.body.unshift(newImportDeclaration);
-
-  return newImportDeclaration;
-}
-
-const STD_LIB_PATH = "./std.js";
