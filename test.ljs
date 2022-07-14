@@ -1,10 +1,8 @@
-// IIFE
+// loop
 
-(const x 1)
-(const y 2)
-(log (= x y))
-(log (!= x y))
-(log (!= x 1))
-(log (!= x "1"))
-(log (= x "1"))
-(log (= x 1))
+(const arr [1,2,3])
+(const arr2 [1,2,3])
+
+(for [x arr y arr2]
+    (log x y)
+)

@@ -65,6 +65,16 @@ export function compileStatement(
         );
         return compileIfStatement(state, blockStatementList, expr);
       }
+      if (func.name === "for") {
+        invariant(elements.length > 2, "for should have body", expr);
+        const pairs = elements[1];
+        invariant(
+          pairs.nodeType === "Vector",
+          "for should have vector of pairs as first argument",
+          expr,
+        );
+        invariant(false, "for is not implemented yet", expr);
+      }
       invariant(false, "Control flow operators not supported", func);
     }
     const jsExpression = lispExpressionToJsExpression(

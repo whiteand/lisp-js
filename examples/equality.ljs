@@ -1,0 +1,10 @@
+// equality
+
+(const x 1)
+(const y 2)
+(log (= x y))
+(log (!= x y))
+(log (!= x 1))
+(log (!= x "1"))
+(log (= x "1"))
+(log (= x 1))

@@ -6,5 +6,8 @@ export function isControlFlowOperator(
   if(sym.name === "if") {
     return true;
   }
+  if (sym.name === 'for') {
+    return true
+  }
   return false;
 }
