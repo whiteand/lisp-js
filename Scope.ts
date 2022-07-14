@@ -68,10 +68,16 @@ type AnonymousDefinition = {
     | "ChainComparisonResult";
 };
 
+type IPlaceholderDefinition = {
+  definitionType: 'Placeholder'
+  expression: LispExpression
+}
+
 export type TDefinition =
   | IExpressionDefinition
   | AnonymousDefinition
   | IParameterDefinition
+  | IPlaceholderDefinition
   | IAnonymousFunctionDefinition
   | DefaultFunctionNameDefinition
   | IConstDefinition

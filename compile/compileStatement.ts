@@ -74,5 +74,20 @@ export function compileStatement(
     blockStatementList.append(expressionStatement);
     return;
   }
-  invariant(false, "invalid global statement", expr);
+  invariant(func.nodeType !== "BigInt", "BigInt is not callable", func);
+  invariant(func.nodeType !== "Number", "Number is not callable", func);
+  invariant(func.nodeType !== "Void", "Void is not callable", func);
+  invariant(func.nodeType !== "String", "String is not callable", func);
+  blockStatementList.append({
+    type: 'ExpressionStatement',
+    span: SPAN,
+    expression: {
+      type: 'CallExpression',
+      span: SPAN,
+      callee: lispExpressionToJsExpression(state, blockStatementList, func),
+      arguments: elements.slice(1).map(
+        (arg) => ({ expression: lispExpressionToJsExpression(state, blockStatementList, arg) })
+      ),
+    },
+  })
 }

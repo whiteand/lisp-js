@@ -6,13 +6,14 @@ import { IStatementList } from "./IStatementList.ts";
 import { IPlaceholderList } from "./IPlaceholderList.ts";
 import { invariant } from "../syntaxInvariant.ts";
 
-export class PlaceholderList implements IScope, IStatementList {
+export class PlaceholderList implements IPlaceholderList {
   private parentList: IStatementList;
   private scope: IScope;
   private statements: swcType.Statement[];
   private _expr: LispExpression;
   private hoistPos: number;
   private deferred: (() => void)[];
+  type: "PlaceholderList" = "PlaceholderList";
   constructor(
     scope: IScope,
     parent: IStatementList,
@@ -25,6 +26,7 @@ export class PlaceholderList implements IScope, IStatementList {
     this.hoistPos = 0;
     this.deferred = [];
   }
+  
   get expression(): LispExpression {
     return this._expr;
   }
@@ -109,7 +111,7 @@ export class PlaceholderList implements IScope, IStatementList {
   invariantPlaceholderRemoved(): void {
     for (const st of this.statements) {
       if (!(st instanceof PlaceholderList)) continue;
-      invariant(false, "Placeholder was not removed", st.expression);
+      invariant(false, "Placeholder was not removed", (st as any).expression);
     }
   }
 }
@@ -157,7 +159,7 @@ export class BlockStatementList implements IBlockStatementList {
       const st = this.blockStatement.stmts[i];
       if (!st) continue;
       if (st instanceof PlaceholderList) {
-        invariant(false, "All placholders should be removed.", st.expression);
+        invariant(false, "All placholders should be removed.", (st as any).expression);
       }
     }
   }

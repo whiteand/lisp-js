@@ -1,4 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
+import { IPlaceholderList } from "../compile/IPlaceholderList.ts";
 import { TNode } from "./TNode.ts";
 
 export function getNodeByType<T extends TNode["type"]>(
@@ -21,20 +22,27 @@ export function getNodesByType<T extends TNode["type"]>(
   ) as any;
 }
 
+function isPlaceholderList(value: any): value is IPlaceholderList {
+  return value?.type === "PlaceholderList";
+}
+
 export function forEachNode(
-  rootNode: TNode,
+  rootNode: TNode | IPlaceholderList,
   cb: (node: TNode) => true | void,
 ): void {
   const nodes: TNode[] = [rootNode];
-  const visited = new Set()
+  const visited = new Set();
   while (nodes.length > 0) {
     const node = nodes.pop()!;
-    if (visited.has(node)) return
-    visited.add(node)
+    if (visited.has(node)) return;
+    visited.add(node);
     const shouldStop = cb(node);
 
     if (shouldStop === true) {
       break;
+    }
+    if (isPlaceholderList(node)) {
+      continue;
     }
 
     if (node.type === "Module") {
@@ -58,7 +66,9 @@ export function forEachNode(
       continue;
     }
     if (node.type === "BlockStatement") {
-      nodes.push(...node.stmts);
+      for (let i = node.stmts.length - 1; i >= 0; i--) {
+        nodes.push(node.stmts[i]);
+      }
       continue;
     }
     if (node.type === "MemberExpression") {
@@ -152,7 +162,7 @@ export function forEachNode(
       continue;
     }
 
-    throw new Error("Not handled node type: " + JSON.stringify(node));
+    throw new Error("Not handled node type: " + node.type);
   }
 }
 

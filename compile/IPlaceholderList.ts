@@ -5,4 +5,5 @@ import { IStatementList } from "./IStatementList.ts";
 
 export interface IPlaceholderList extends IStatementList, IScope {
   expression: LispExpression;
+  type: 'PlaceholderList'
 }

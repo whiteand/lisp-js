@@ -1,11 +1,4 @@
 // Panic
 
-(const pos? (fn [x] (> x 0)))
-(const count-down (fn [n]
-    (if (pos? n)
-        (if (log n) false (count-down (- n 1)))
-        (panic "Something")
-    )
-))
-
-(count-down 10)
+(const x 1)
+((fn [x] (log x) ) x)
