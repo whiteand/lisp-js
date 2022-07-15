@@ -54,6 +54,7 @@ export function compileForStatement(
       "iterator symbol is already defined in parent scope.",
       symbol,
     );
+    blockStatementList.tryAddReference(symbol.name, symbol);
   }
 
   blockStatementList.defer(() => {
@@ -95,6 +96,7 @@ export function compileForStatement(
             iterable,
           );
           iterablesJs.set(pairIndex, createSymbolIdentifier(iterable));
+          currentBlock.tryAddReference(iterable.name, iterable)
         } else {
           const name = currentBlock.defineRandom({
             definitionType: "Placeholder",
@@ -123,7 +125,7 @@ export function compileForStatement(
         type: "ForOfStatement",
         span: SPAN,
         await: null as any,
-        left: declareVar('const', createSymbolIdentifier(symbol), null),
+        left: declareVar("const", createSymbolIdentifier(symbol), null),
         right: iterableJs,
         body: createBlock(),
       };

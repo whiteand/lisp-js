@@ -17,6 +17,7 @@ export interface IDefinitionTree {
 export interface IScope extends ITree<IScope> {
   getDefinition(symbol: string): TDefinition | null;
   getDefinitions(): Record<string, TDefinition>;
+  getOwnDefinitions(): Record<string, TDefinition>;
   forceDefine(symbol: string, definition: TDefinition): void;
   define(
     symbol: string,
@@ -148,18 +149,16 @@ export class Scope implements IScope {
   }
 
   public getDefinitions(): Record<string, TDefinition> {
+    if (!this.parent) return this.getOwnDefinitions();
+    return { ...this.parent.getDefinitions(), ...this.getOwnDefinitions() };
+  }
+
+  public getOwnDefinitions(): Record<string, TDefinition> {
     const res = Object.create(null);
-    if (this.parent) {
-      const parentSymbols = this.parent.getDefinitions();
-      for (const [name, definition] of Object.entries(parentSymbols)) {
-        res[name] = definition;
-      }
-    }
-    for (const [name, definition] of this.definitionBySymbolName) {
+    for (const [name, definition] of this.definitionBySymbolName.entries()) {
       res[name] = definition;
     }
-
-    return res;
+    return res
   }
 
   public forceDefine(name: string, definition: TDefinition): void {

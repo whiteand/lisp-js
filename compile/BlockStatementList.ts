@@ -30,6 +30,9 @@ export class PlaceholderList implements IPlaceholderList {
   get expression(): LispExpression {
     return this._expr;
   }
+  getOwnDefinitions(): Record<string, TDefinition> {
+    return this.scope.getOwnDefinitions();
+  }
   getDefinition(symbol: string): TDefinition | null {
     return this.scope.getDefinition(symbol);
   }
@@ -96,7 +99,21 @@ export class PlaceholderList implements IPlaceholderList {
   close(): void {
     this.callDeferred();
     this.invariantPlaceholderRemoved();
+    this.invariantThereIsNoUnused();
     this.commit();
+  }
+  private invariantThereIsNoUnused(): void {
+    const defs = this.getOwnDefinitions();
+    for (const symbol in defs) {
+      const def = defs[symbol];
+      if (!def) continue;
+      if (symbol.startsWith("_")) return;
+      const refs = this.getReferences(symbol);
+      if (refs.length > 0) continue;
+      if (def.definitionType === "Const") {
+        invariant(false, "Unused const", def.declaration);
+      }
+    }
   }
   private commit(): void {
     // deno-lint-ignore no-explicit-any
@@ -170,6 +187,9 @@ export class BlockStatementList implements IBlockStatementList {
   }
   getDefinition(symbol: string): TDefinition | null {
     return this.scope.getDefinition(symbol);
+  }
+  getOwnDefinitions(): Record<string, TDefinition> {
+    return this.getOwnDefinitions();
   }
   tryAddReference(symbol: string, expression: LispExpression): boolean {
     return this.scope.tryAddReference(symbol, expression);
