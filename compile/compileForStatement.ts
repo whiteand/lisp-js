@@ -84,7 +84,6 @@ export function compileForStatement(
     }
     let currentBlock: IBlockStatementList = placeholder;
     for (let i = 0; i < pairs.length; i += 2) {
-      console.log(Object.keys(currentBlock.getDefinitions()));
       const symbol = pairs[i];
       const iterable = pairs[i + 1];
       const pairIndex = i >>> 1;

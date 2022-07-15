@@ -1,7 +1,7 @@
 // for-of statement
 
 (const arr [1,2,3])
-// (const arr2 [1,2,3])
+(const _arr2 [1,2,3])
 
 (for [x arr y [0, x]]
     (log x y)

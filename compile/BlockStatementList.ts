@@ -111,7 +111,7 @@ export class PlaceholderList implements IPlaceholderList {
       const refs = this.getReferences(symbol);
       if (refs.length > 0) continue;
       if (def.definitionType === "Const") {
-        invariant(false, "Unused const", def.declaration);
+        invariant(false, `Unused const.\nRename it to _${symbol} if you want to keep it`, def.declaration);
       }
     }
   }
