@@ -5,6 +5,7 @@ import { renderExpression } from "../renderExpression.ts";
 import { invariant } from "../syntaxInvariant.ts";
 import { BlockStatementList } from "./BlockStatementList.ts";
 import { compileStatement } from "./compileStatement.ts";
+import { compileStatements } from "./compileStatements.ts";
 import { SPAN } from "./constants.ts";
 import { createBlock } from "./createBlock.ts";
 import { createIdentifier } from "./createIdentifier.ts";
@@ -113,40 +114,12 @@ export function anonymousFunctionDeclaration(
         symbol: param,
       }, param);
     }
-    for (let i = 2; i < expr.elements.length - 1; i++) {
-      const statementExpression = expr.elements[i];
-      invariant(
-        statementExpression.nodeType !== "BigInt",
-        "This expression will not have any effect",
-        statementExpression,
-      );
-      invariant(
-        statementExpression.nodeType !== "String",
-        "This expression will not have any effect",
-        statementExpression,
-      );
-      invariant(
-        statementExpression.nodeType !== "Symbol",
-        "This expression will not have any effect",
-        statementExpression,
-      );
-      invariant(
-        statementExpression.nodeType !== "Vector",
-        "This expression will not have any effect",
-        statementExpression,
-      );
-      invariant(
-        statementExpression.nodeType !== "Number",
-        "This expression will not have any effect",
-        statementExpression,
-      );
-      invariant(
-        statementExpression.nodeType !== "Void",
-        "This expression will not have any effect",
-        statementExpression,
-      );
-      compileStatement(state, functionBlockStatementList, statementExpression);
-    }
+
+    compileStatements(
+      state,
+      functionBlockStatementList,
+      expr.elements.slice(2, -1),
+    );
 
     const resultExpression = expr.elements[expr.elements.length - 1];
     invariant(resultExpression, "impossible failure", expr);

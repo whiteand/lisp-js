@@ -1,8 +1,7 @@
 import { LispExpression } from "../ast.ts";
 import { Scope } from "../Scope.ts";
-import { invariant } from "../syntaxInvariant.ts";
 import { BlockStatementList } from "./BlockStatementList.ts";
-import { compileStatement } from "./compileStatement.ts";
+import { compileStatements } from "./compileStatements.ts";
 import { OUT_ENTRYPOINT_PATH, SPAN } from "./constants.ts";
 import { injectDefaultExportMain } from "./injectDefaultExportMain.ts";
 import { IBundleFile, ICompilerState } from "./types.ts";
@@ -31,33 +30,7 @@ export function compile(
     blockStatement,
   );
 
-  for (const expr of expression$) {
-    invariant(
-      expr.nodeType !== "BigInt",
-      "This statement cannot be global",
-      expr,
-    );
-    invariant(
-      expr.nodeType !== "Number",
-      "This statement cannot be global",
-      expr,
-    );
-    invariant(
-      expr.nodeType !== "Symbol",
-      "This statement cannot be global",
-      expr,
-    );
-    invariant(
-      expr.nodeType !== "Vector",
-      "This statement cannot be global",
-      expr,
-    );
-    if (expr.nodeType === "List") {
-      compileStatement(state, blockStatementList, expr);
-      continue;
-    }
-    invariant(false, "Unsupported expression", expr);
-  }
+  compileStatements(state, blockStatementList, expression$);
 
   blockStatementList.close();
 

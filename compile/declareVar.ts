@@ -4,7 +4,7 @@ import { SPAN } from "./constants.ts";
 export function declareVar(
   kind: 'const' | 'let',
   id: swcType.Identifier,
-  init: swcType.Expression,
+  init: swcType.Expression | null,
 ): swcType.VariableDeclaration {
   return {
     type: "VariableDeclaration",
@@ -17,7 +17,7 @@ export function declareVar(
         definite: false,
         id,
         span: SPAN,
-        init,
+        init: init || undefined,
       },
     ],
   };

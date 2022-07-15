@@ -133,11 +133,11 @@ export function lispExpressionToJsExpression(
       expr.name,
     );
     invariant(definition, "undefined symbol", expr);
-    if (definition.definitionType === "Const") {
-      blockStatementList.tryAddReference(expr.name, expr);
-      return createIdentifier(symbolToId(expr.name));
-    }
-    if (definition.definitionType === "FunctionParameter") {
+    if (
+      definition.definitionType === "Const" ||
+      definition.definitionType === "FunctionParameter" ||
+      definition.definitionType === "Placeholder"
+    ) {
       blockStatementList.tryAddReference(expr.name, expr);
       return createIdentifier(symbolToId(expr.name));
     }

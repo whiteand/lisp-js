@@ -2,6 +2,7 @@ import { IList } from "../ast.ts";
 import { swcType } from "../deps.ts";
 import { isScopeOperatorName } from "../ScopeOperatorName.ts";
 import { invariant } from "../syntaxInvariant.ts";
+import { compileForStatement } from "./compileForStatement.ts";
 import { compileIfStatement } from "./compileIfStatement.ts";
 import { SPAN } from "./constants.ts";
 import { createIdentifier } from "./createIdentifier.ts";
@@ -66,14 +67,7 @@ export function compileStatement(
         return compileIfStatement(state, blockStatementList, expr);
       }
       if (func.name === "for") {
-        invariant(elements.length > 2, "for should have body", expr);
-        const pairs = elements[1];
-        invariant(
-          pairs.nodeType === "Vector",
-          "for should have vector of pairs as first argument",
-          expr,
-        );
-        invariant(false, "for is not implemented yet", expr);
+        return compileForStatement(state, blockStatementList, expr);
       }
       invariant(false, "Control flow operators not supported", func);
     }

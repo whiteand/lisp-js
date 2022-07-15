@@ -69,9 +69,9 @@ type AnonymousDefinition = {
 };
 
 type IPlaceholderDefinition = {
-  definitionType: 'Placeholder'
-  expression: LispExpression
-}
+  definitionType: "Placeholder";
+  expression: LispExpression;
+};
 
 export type TDefinition =
   | IExpressionDefinition
@@ -149,15 +149,14 @@ export class Scope implements IScope {
 
   public getDefinitions(): Record<string, TDefinition> {
     const res = Object.create(null);
-    for (const [name, definition] of this.definitionBySymbolName) {
-      res[name] = definition;
-    }
     if (this.parent) {
-      const parentSymbols = this.getDefinitions();
+      const parentSymbols = this.parent.getDefinitions();
       for (const [name, definition] of Object.entries(parentSymbols)) {
-        if (res[name]) continue;
         res[name] = definition;
       }
+    }
+    for (const [name, definition] of this.definitionBySymbolName) {
+      res[name] = definition;
     }
 
     return res;
