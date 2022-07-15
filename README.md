@@ -23,9 +23,10 @@ Working Examples are in the [examples](https://github.com/whiteand/lisp-js/tree/
 |              panic expression              |      **Done**       |
 |                    iife                    |      **Done**       |
 |             equality operator              |      **Done**       |
-|                   for-of                   |   **In Progress**   |
+|              for-of statement              |      **Done**       |
 |           immutable collections            | Not implemented yet |
 |     utility functions for collections      | Not implemented yet |
+|             for-of expression              | Not implemented yet |
 |          module system as in Deno          | Not implemented yet |
 |     observables as first class object      | Not implemented yet |
 |      tail call recursion optimization      | Not implemented yet |
